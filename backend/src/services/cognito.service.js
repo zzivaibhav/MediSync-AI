@@ -3,7 +3,7 @@ import {hashGenerator} from '../utils/cognito.hash.js'
  import dotenv from 'dotenv'
  dotenv.config();
 import jwt from 'jsonwebtoken'
-
+import Doctor from '../model/doctor.model.js'
 const cognito = new AWS.CognitoIdentityServiceProvider();
  
 const handleSignup = async (req, res) => {
@@ -36,6 +36,22 @@ const handleSignup = async (req, res) => {
     
       try {
         const data = await cognito.signUp(params).promise();
+     
+        if(data.UserSub){
+          const doctorData = new Doctor({
+            email : email,
+            name : name,
+            phoneNumber : phone_number,
+            cognitoReference: data.UserSub
+
+          });
+         const savedDoctor =  await doctorData.save();
+          console.log("Doctor Data Saved:", savedDoctor);
+          res.json({
+            data: data,
+            doctorInLocal: savedDoctor
+          });
+        }
         res.json(data);
       } catch (error) {
         console.error("Cognito SignUp Error:", error);
