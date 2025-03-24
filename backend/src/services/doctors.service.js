@@ -28,4 +28,27 @@ const createPatient = async (req, res) => {
     }
 }
 
-export { createPatient };
+const getPatients = async (req, res) => {
+    try {
+        const patients = await Patient.findAll({
+            where: {
+                doctorID: req.user.sub
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Patients fetched successfully",
+            data: patients
+        });
+    } catch (error) {
+        console.error('Error fetching patients:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch patients",
+            error: error.message
+        });
+    }
+}
+
+export { createPatient,getPatients };
