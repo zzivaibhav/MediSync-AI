@@ -1,3 +1,4 @@
+//export cognito variables so that it can be used in the backend
 resource "aws_secretsmanager_secret" "medisync_secrets" {
   name = "medisync_secrets"
 }

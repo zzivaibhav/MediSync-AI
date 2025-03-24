@@ -42,9 +42,10 @@ const upload = multer({
  
 app.post("/create-folder", async (req, res) => {
   try {
-    const { folderName, bucketName } = req.body;
+    const { name,email } = req.body;
     
-    if (!folderName || !bucketName) {
+    const folderName = `${name}-${email}/`;
+    if (!folderName) {
       return res.status(400).json({
         success: false,
         message: "Folder name and bucket name are required"
@@ -64,7 +65,7 @@ app.post("/create-folder", async (req, res) => {
     // Create all three folders in parallel
     const folderPromises = folderKeys.map(folderKey => {
       const params = {
-        Bucket: bucketName,
+        Bucket: process.env.S3_BUCKET_NAME,
         Key: folderKey,
         Body: ''  // Empty content for the folder object
       };
@@ -77,7 +78,7 @@ app.post("/create-folder", async (req, res) => {
     
     res.status(201).json({
       success: true,
-      message: `Folder '${folderName}' with input and output subfolders created successfully in bucket '${bucketName}'`
+      message: `Folder '${folderName}' with input and output subfolders created successfully in bucket '${process.env.S3_BUCKET_NAME}'`
     });
     
   } catch (error) {
