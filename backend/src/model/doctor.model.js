@@ -7,7 +7,7 @@ import {db} from '../db/db.js';
         autoIncrement: true,
         primaryKey: true,
     },
-  name: {
+    name: {
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -22,12 +22,12 @@ import {db} from '../db/db.js';
     phoneNumber: {
       type: DataTypes.STRING,
       allowNull: false
-    } ,
-    cognitoReference:{
+    },
+    cognitoReference: {
       type: DataTypes.STRING,
-      allowNull: true
-    }
-   ,
+      allowNull: true,
+      unique: true  // Adding unique constraint here
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -42,8 +42,5 @@ import {db} from '../db/db.js';
     tableName: 'Doctors',
     timestamps: true
   });
-
- 
- 
 
 export default Doctor;
