@@ -43,11 +43,11 @@ import {db} from '../db/db.js';
       defaultValue: DataTypes.NOW
     },
     doctorID :{
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: 'Doctor',
-        key: 'id'
+        model: 'Doctors',
+        key: 'cognitoReference'
       }
     }
   }, {

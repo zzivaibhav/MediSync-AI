@@ -39,7 +39,7 @@ import {db} from '../db/db.js';
       defaultValue: DataTypes.NOW
     }
   }, {
-    tableName: 'doctors',
+    tableName: 'Doctors',
     timestamps: true
   });
 
