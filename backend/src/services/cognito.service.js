@@ -52,7 +52,7 @@ const handleSignup = async (req, res) => {
             doctorInLocal: savedDoctor
           });
         }
-        res.json(data);
+      
       } catch (error) {
         console.error("Cognito SignUp Error:", error);
         res.status(400).json(error);
@@ -97,7 +97,7 @@ const handleLogin = async (req, res) => {
     const data = await cognito.initiateAuth(params).promise();
     const token = jwt.sign({email : data.AuthenticationResult.AccessToken}, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
     res.json({
-      token : token,
+     token : token,
       data : data
     });
   }

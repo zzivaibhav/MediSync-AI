@@ -20,7 +20,7 @@ resource "aws_db_subnet_group" "database_sb" {
    skip_final_snapshot  = true
    vpc_security_group_ids = [aws_security_group.database.id]
   db_subnet_group_name = aws_db_subnet_group.database_sb.name
-   publicly_accessible  = true
+   
   tags = {
     Name = "medi-sync-ai-db"
     Identifier = "medi-sync-ai-db"

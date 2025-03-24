@@ -145,8 +145,10 @@ app.get("/",authenticatJWT, (req, res) => {
 });
 // routes import
 import { router as cognitoRouter } from "./routes/cognito.routes.js";
+import {router as doctorRouter} from "./routes/doctor.routes.js";
 //routes declaration
 
 app.use("/cognito", cognitoRouter);
+app.use("/doctor-api", doctorRouter);
 app.use
 export { app };
