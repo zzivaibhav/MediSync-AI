@@ -102,9 +102,7 @@ const Dashboard = ({ children }) => {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <IconButton color="inherit">
-                <Notifications className="text-gray-400" />
-              </IconButton>
+              
 
               <div>
                 <IconButton

@@ -21,8 +21,10 @@ import {
   Sort
 } from '@mui/icons-material';
 import { TableSkeleton } from '../../components/ui/Skeleton';
+import { useNavigate } from 'react-router-dom';
 
 const Patients = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [patients, setPatients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -114,6 +116,7 @@ const Patients = () => {
           color="primary"
           startIcon={<Add />}
           sx={{ borderRadius: 2 }}
+          onClick={() => navigate('/dashboard/add-patient')}
         >
           Add New Patient
         </Button>

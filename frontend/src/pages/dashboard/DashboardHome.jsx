@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Grid, 
-  Paper,
   Typography,
   Box,
   Card,
   CardContent,
   CardHeader,
   Button,
-  Divider
+  Divider,
+  LinearProgress,
+  Chip
 } from '@mui/material';
 import {
   TrendingUp,
   TrendingDown,
   People,
-  EventNote,
-  LocalHospital,
-  Assessment
+  Mic,
+  Description,
+  Assessment,
+  CloudUpload,
+  Check,
+  AccessTime
 } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 import { StatCardSkeleton, TableSkeleton, CardSkeleton } from '../../components/ui/Skeleton';
 
 const StatsCard = ({ title, value, icon, change, color, loading }) => {
@@ -72,25 +77,25 @@ const StatsCard = ({ title, value, icon, change, color, loading }) => {
   );
 };
 
-const RecentPatients = ({ loading }) => {
+const RecentTranscripts = ({ loading }) => {
   if (loading) {
     return <TableSkeleton rows={5} columns={4} />;
   }
 
-  const patients = [
-    { id: 1, name: 'John Doe', date: '2023-05-15', status: 'Completed' },
-    { id: 2, name: 'Jane Smith', date: '2023-05-16', status: 'Scheduled' },
-    { id: 3, name: 'Robert Johnson', date: '2023-05-17', status: 'Completed' },
-    { id: 4, name: 'Emily Davis', date: '2023-05-18', status: 'Cancelled' },
-    { id: 5, name: 'Michael Brown', date: '2023-05-19', status: 'Scheduled' },
+  const transcripts = [
+    { id: 1, patientName: 'John Doe', recordingName: 'Annual Checkup', date: '2023-05-15', status: 'Completed' },
+    { id: 2, patientName: 'Jane Smith', recordingName: 'Follow-up Consultation', date: '2023-05-16', status: 'Processing' },
+    { id: 3, patientName: 'Robert Johnson', recordingName: 'Specialist Referral', date: '2023-05-17', status: 'Completed' },
+    { id: 4, patientName: 'Emily Davis', recordingName: 'Initial Consultation', date: '2023-05-18', status: 'Failed' },
+    { id: 5, patientName: 'Michael Brown', recordingName: 'Medication Review', date: '2023-05-19', status: 'Completed' },
   ];
 
   return (
     <Card sx={{ bgcolor: '#1f2937', borderRadius: 2, border: '1px solid #374151' }}>
       <CardHeader 
-        title="Recent Patients" 
+        title="Recent Transcripts" 
         action={
-          <Button color="primary" size="small">
+          <Button color="primary" size="small" component={Link} to="/dashboard/transcripts">
             View All
           </Button>
         }
@@ -106,7 +111,10 @@ const RecentPatients = ({ loading }) => {
             <thead>
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Name
+                  Patient
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  Recording
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                   Date
@@ -120,25 +128,44 @@ const RecentPatients = ({ loading }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
-              {patients.map((patient) => (
-                <tr key={patient.id}>
+              {transcripts.map((transcript) => (
+                <tr key={transcript.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                    {patient.name}
+                    {transcript.patientName}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {patient.date}
+                    {transcript.recordingName}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                    {transcript.date}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      patient.status === 'Completed' ? 'bg-green-800 text-green-100' :
-                      patient.status === 'Scheduled' ? 'bg-blue-800 text-blue-100' :
-                      'bg-red-800 text-red-100'
-                    }`}>
-                      {patient.status}
-                    </span>
+                    <Chip 
+                      label={transcript.status} 
+                      size="small"
+                      icon={
+                        transcript.status === 'Completed' ? <Check fontSize="small" /> :
+                        transcript.status === 'Processing' ? <AccessTime fontSize="small" /> : null
+                      }
+                      sx={{
+                        bgcolor: 
+                          transcript.status === 'Completed' ? 'rgba(16, 185, 129, 0.2)' :
+                          transcript.status === 'Processing' ? 'rgba(59, 130, 246, 0.2)' :
+                          'rgba(239, 68, 68, 0.2)',
+                        color: 
+                          transcript.status === 'Completed' ? 'rgb(16, 185, 129)' :
+                          transcript.status === 'Processing' ? 'rgb(59, 130, 246)' :
+                          'rgb(239, 68, 68)',
+                        borderRadius: '4px',
+                        '& .MuiChip-label': { px: 1 },
+                        '& .MuiChip-icon': { color: 'inherit' }
+                      }}
+                    />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-500 hover:text-blue-400 cursor-pointer">
-                    View Details
+                    <Link to={`/dashboard/transcripts/${transcript.id}`}>
+                      View Details
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -150,18 +177,24 @@ const RecentPatients = ({ loading }) => {
   );
 };
 
-const UpcomingAppointments = ({ loading }) => {
+const ProcessingQueue = ({ loading }) => {
   if (loading) {
     return <CardSkeleton />;
   }
 
+  const queuedItems = [
+    { id: 1, patientName: 'Alice Johnson', progress: 75 },
+    { id: 2, patientName: 'Bob Williams', progress: 30 },
+    { id: 3, patientName: 'Carol Martinez', progress: 90 }
+  ];
+
   return (
     <Card sx={{ bgcolor: '#1f2937', borderRadius: 2, border: '1px solid #374151' }}>
       <CardHeader 
-        title="Upcoming Appointments" 
+        title="Processing Queue" 
         action={
-          <Button color="primary" size="small">
-            View Calendar
+          <Button color="primary" size="small" component={Link} to="/dashboard/recordings">
+            Upload New
           </Button>
         }
         sx={{ 
@@ -171,32 +204,42 @@ const UpcomingAppointments = ({ loading }) => {
       />
       <Divider sx={{ borderColor: '#374151' }} />
       <CardContent>
-        <Box className="space-y-3">
-          {[1, 2, 3].map((item) => (
+        <Box className="space-y-4">
+          {queuedItems.map((item) => (
             <Box 
-              key={item}
-              className="flex items-center justify-between p-3 rounded-lg border border-gray-700 hover:border-blue-500"
+              key={item.id}
+              className="p-3 rounded-lg border border-gray-700 hover:border-blue-500"
             >
-              <Box className="flex items-center">
-                <Box className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-800 flex items-center justify-center">
-                  <Typography className="text-blue-200 font-medium">
-                    {10 + item}
-                  </Typography>
-                </Box>
-                <Box className="ml-4">
-                  <Typography className="text-sm font-medium text-white">
-                    Patient {item}
-                  </Typography>
-                  <Typography className="text-xs text-gray-400">
-                    {item === 1 ? 'Today' : item === 2 ? 'Tomorrow' : 'In 2 days'}, 10:{item}0 AM
-                  </Typography>
-                </Box>
+              <Box className="flex justify-between items-center mb-2">
+                <Typography className="text-sm font-medium text-white">
+                  {item.patientName}
+                </Typography>
+                <Typography className="text-xs text-gray-400">
+                  {item.progress}% complete
+                </Typography>
               </Box>
-              <Button size="small" variant="outlined" sx={{ borderRadius: 4 }}>
-                Details
-              </Button>
+              <LinearProgress 
+                variant="determinate" 
+                value={item.progress} 
+                sx={{
+                  height: 6,
+                  borderRadius: 3,
+                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                  '& .MuiLinearProgress-bar': {
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 3
+                  }
+                }}
+              />
             </Box>
           ))}
+          {queuedItems.length === 0 && (
+            <Box className="text-center py-6">
+              <Typography className="text-gray-400">
+                No recordings currently processing
+              </Typography>
+            </Box>
+          )}
         </Box>
       </CardContent>
     </Card>
@@ -224,10 +267,12 @@ const DashboardHome = () => {
         <Button 
           variant="contained"
           color="primary"
-          startIcon={<Assessment />}
+          startIcon={<CloudUpload />}
+          component={Link}
+          to="/dashboard/recordings"
           sx={{ borderRadius: 2 }}
         >
-          Generate Report
+          Upload Recording
         </Button>
       </div>
 
@@ -245,28 +290,28 @@ const DashboardHome = () => {
         <Grid item xs={12} sm={6} lg={3}>
           <StatsCard 
             loading={loading}
-            title="Appointments" 
-            value="28" 
-            icon={<EventNote />}
-            change={-3.6} 
+            title="Recordings" 
+            value="142" 
+            icon={<Mic />}
+            change={28.4} 
             color="info" 
           />
         </Grid>
         <Grid item xs={12} sm={6} lg={3}>
           <StatsCard 
             loading={loading}
-            title="Diagnoses" 
-            value="156" 
-            icon={<LocalHospital />}
-            change={8.2} 
+            title="Transcripts" 
+            value="128" 
+            icon={<Description />}
+            change={18.2} 
             color="success" 
           />
         </Grid>
         <Grid item xs={12} sm={6} lg={3}>
           <StatsCard 
             loading={loading}
-            title="Completed" 
-            value="95%" 
+            title="Processed" 
+            value="90%" 
             icon={<Assessment />}
             change={4.1} 
             color="warning" 
@@ -274,10 +319,10 @@ const DashboardHome = () => {
         </Grid>
 
         <Grid item xs={12} lg={8}>
-          <RecentPatients loading={loading} />
+          <RecentTranscripts loading={loading} />
         </Grid>
         <Grid item xs={12} lg={4}>
-          <UpcomingAppointments loading={loading} />
+          <ProcessingQueue loading={loading} />
         </Grid>
       </Grid>
     </div>

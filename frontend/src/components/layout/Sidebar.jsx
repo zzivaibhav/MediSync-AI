@@ -31,7 +31,7 @@ const Sidebar = ({ onClose = () => {} }) => {
     <div className="h-full flex flex-col bg-gray-800">
       <div className="p-4 border-b border-gray-700">
         <div className="flex justify-center items-center">
-          <h1 className="text-xl font-bold text-blue-500">MediSync-AI</h1>
+          <h1 className="text-xl font-bold text-blue-300">Medi-sync</h1>
         </div>
       </div>
 
