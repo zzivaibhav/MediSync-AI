@@ -3,56 +3,67 @@ import dotenv from "dotenv";
 import { s3Client } from "../utils/s3client.js";
 dotenv.config();
 
-const createDirectory = async (req,res) => {
-    
-        try {
-          const { name,email } = req.body;
-           
-          const folderName = `${name}-${email}/`;
-          if (!folderName) {
+const createDirectory = async (req, res) => {
+    try {
+        // Add validation and debugging
+        if (!process.env.S3_INPUT_BUCKET_NAME) {
+            console.error("S3_INPUT_BUCKET_NAME environment variable is not set");
+            return false;
+        }
+        
+        // Check if req.body exists
+        if (!req || !req.body || !req.body.name || !req.body.email) {
+            console.error("Request body is missing required fields");
+            return false;
+        }
+        
+        const { name, email } = req.body;
+        console.log(`Creating S3 directory for ${name} (${email})`);
+        
+        const folderName = `${name}-${email}/`;
+        if (!folderName) {
             return res.status(400).json({
-              success: false,
-              message: "Folder name and bucket name are required"
+                success: false,
+                message: "Folder name and bucket name are required"
             });
-          }
-          
-          // Ensure folderName has trailing slash for S3
-          const baseFolder = folderName.endsWith('/') ? folderName : `${folderName}/`;
-          
-          // Create the main folder, input subfolder, and output subfolder
-          const folderKeys = [
+        }
+        
+        // Ensure folderName has trailing slash for S3
+        const baseFolder = folderName.endsWith('/') ? folderName : `${folderName}/`;
+        
+        // Create the main folder, input subfolder, and output subfolder
+        const folderKeys = [
             baseFolder,                // Main folder
             `${baseFolder}input/`,     // Input subfolder
             `${baseFolder}output/`     // Output subfolder
-          ];
-          
-          // Create all three folders in parallel
-          const folderPromises = folderKeys.map(folderKey => {
+        ];
+        
+        // Create all three folders in parallel
+        const folderPromises = folderKeys.map(folderKey => {
             const params = {
-              Bucket: process.env.S3_BUCKET_NAME,
-              Key: folderKey,
-              Body: ''  // Empty content for the folder object
+                Bucket: process.env.S3_INPUT_BUCKET_NAME,
+                Key: folderKey,
+                Body: ''  // Empty content for the folder object
             };
             
             const command = new PutObjectCommand(params);
             return s3Client.send(command);
-          });
-          
-          await Promise.all(folderPromises);
-          
-          
-          return true
+        });
+        
+        await Promise.all(folderPromises);
+        
+        return true
 
-        } catch (error) {
-          console.error("Error creating folders in S3:", error);
-          return false
-        }
-      
+    } catch (error) {
+        console.error("Error creating folders in S3:", error);
+        return false
+    }
 }
 
 const deleteDirectory = async (name, email) => {
     try {
-         
+        const { name, email } = req.body;
+        
         if (!name || !email) {
             return res.status(400).json({
                 success: false,
@@ -66,7 +77,7 @@ const deleteDirectory = async (name, email) => {
         
         // List all objects with the folder prefix
         const listParams = {
-            Bucket: process.env.S3_BUCKET_NAME,
+            Bucket: process.env.S3_INPUT_BUCKET_NAME,
             Prefix: baseFolder
         };
         
@@ -105,3 +116,5 @@ const deleteDirectory = async (name, email) => {
 }
 
 export { createDirectory, deleteDirectory };
+
+ 

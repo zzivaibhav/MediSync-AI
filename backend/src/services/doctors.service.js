@@ -12,10 +12,12 @@ const createPatient = async (req, res) => {
             phoneNumber,
             doctorID: req.user.sub
         });
-        if(patientData){
-             await createDirectory(req,res);
-        }
+        const s3_patient = await createDirectory(name, email);
         
+        if(patientData){
+            await createDirectory(req,res);
+       }
+         
         return res.status(201).json({
             success: true,
             message: "Patient created successfully",

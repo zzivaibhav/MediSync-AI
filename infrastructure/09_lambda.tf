@@ -138,3 +138,5 @@ resource "aws_iam_role_policy_attachment" "healthscribe_s3_attachment" {
   role       = aws_iam_role.healthscribe_service_role.name
   policy_arn = aws_iam_policy.healthscribe_s3_access.arn
 }
+
+

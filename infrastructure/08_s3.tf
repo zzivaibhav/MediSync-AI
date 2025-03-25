@@ -7,6 +7,14 @@ resource "aws_s3_bucket" "bucket" {
   }
 }
 
+resource "aws_s3_bucket" "output-bucket" {
+  bucket = "medi-sync-ai-output-1476" 
+
+  tags = {
+    Name = "medi-sync-ai-output-1476"
+  }
+}
+
 # S3 Bucket Notification to Trigger Lambda
 resource "aws_s3_bucket_notification" "s3_to_lambda" {
   bucket = aws_s3_bucket.bucket.id
@@ -16,7 +24,9 @@ resource "aws_s3_bucket_notification" "s3_to_lambda" {
     events              = ["s3:ObjectCreated:*"]
 
     # Only trigger on objects within the "input/" folder (adjust the folder name accordingly)
-    filter_prefix = "input/"
+     
+     
+    filter_suffix =    ""
   }
 
   depends_on = [aws_lambda_permission.s3_invocation]
