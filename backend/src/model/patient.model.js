@@ -23,10 +23,7 @@ import {db} from '../db/db.js';
       type: DataTypes.DATE,
       allowNull: false
     },
-    image:{
-      type: DataTypes.STRING,
-      allowNull: true
-    },
+    
     phoneNumber: {
       type: DataTypes.STRING,
       allowNull: false
