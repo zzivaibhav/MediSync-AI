@@ -1,22 +1,15 @@
 import React from 'react'
-import Signup from './pages/signup.jsx'
-
-//amplify imports
-
-import { Amplify } from 'aws-amplify';
-import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
-
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import SignUp from './pages/signup'
+  
 function App() {
   return (
-    <Authenticator loginMechanisms={['email']}>
-    
-    <div>
-      
-      <Signup/>
-    </div>
-    </Authenticator>
-
+    <Router>
+      <Routes>
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/" element={<SignUp />} />  {/* Temporary redirect to signup */}
+      </Routes>
+    </Router>
   )
 }
 
