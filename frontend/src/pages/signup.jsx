@@ -55,13 +55,16 @@ export default function SignUp() {
       // Show success message
       setSnackbar({
         open: true,
-        message: 'Account created successfully! Redirecting to login...',
+        message: 'Account created successfully! Please verify your email.',
         severity: 'success'
       });
 
-      // Redirect using navigate after a short delay
+      // Store email for verification page
+      localStorage.setItem('pendingVerificationEmail', formData.email);
+      
+      // Redirect to email confirmation page
       setTimeout(() => {
-        navigate('/login');
+        navigate('/email-confirmation', { state: { email: formData.email } });
       }, 2000);
 
     } catch (err) {
