@@ -40,56 +40,7 @@ const upload = multer({
 });
 
  
-app.post("/create-folder", async (req, res) => {
-  try {
-    const { name,email } = req.body;
-    
-    const folderName = `${name}-${email}/`;
-    if (!folderName) {
-      return res.status(400).json({
-        success: false,
-        message: "Folder name and bucket name are required"
-      });
-    }
-    
-    // Ensure folderName has trailing slash for S3
-    const baseFolder = folderName.endsWith('/') ? folderName : `${folderName}/`;
-    
-    // Create the main folder, input subfolder, and output subfolder
-    const folderKeys = [
-      baseFolder,                // Main folder
-      `${baseFolder}input/`,     // Input subfolder
-      `${baseFolder}output/`     // Output subfolder
-    ];
-    
-    // Create all three folders in parallel
-    const folderPromises = folderKeys.map(folderKey => {
-      const params = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: folderKey,
-        Body: ''  // Empty content for the folder object
-      };
-      
-      const command = new PutObjectCommand(params);
-      return s3Client.send(command);
-    });
-    
-    await Promise.all(folderPromises);
-    
-    res.status(201).json({
-      success: true,
-      message: `Folder '${folderName}' with input and output subfolders created successfully in bucket '${process.env.S3_BUCKET_NAME}'`
-    });
-    
-  } catch (error) {
-    console.error("Error creating folders in S3:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to create folders in S3",
-      error: error.message
-    });
-  }
-});
+
 
 // Add audio upload endpoint
 app.post("/upload-audio", upload.single('audioFile'), async (req, res) => {
