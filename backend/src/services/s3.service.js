@@ -62,7 +62,7 @@ const createDirectory = async (req, res) => {
 
 const deleteDirectory = async (name, email) => {
     try {
-        const { name, email } = req.body;
+       
         
         if (!name || !email) {
             return res.status(400).json({
@@ -91,7 +91,7 @@ const deleteDirectory = async (name, email) => {
         
         // Create an array of objects to delete
         const deleteParams = {
-            Bucket: process.env.S3_BUCKET_NAME,
+            Bucket: process.env.S3_INPUT_BUCKET_NAME,
             Delete: {
                 Objects: listedObjects.Contents.map(({ Key }) => ({ Key })),
                 Quiet: false
