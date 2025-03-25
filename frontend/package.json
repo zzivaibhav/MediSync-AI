@@ -13,6 +13,7 @@
     "@aws-amplify/ui-react": "^6.9.4",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.8",
     "@mui/material": "^6.4.8",
     "@tailwindcss/vite": "^4.0.16",
     "autoprefixer": "^10.4.21",
