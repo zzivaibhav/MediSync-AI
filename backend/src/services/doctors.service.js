@@ -102,4 +102,7 @@ const deletePatient = async (req, res) => {
  }
 }
 
-export { createPatient,getPatients,deletePatient };
+const updatePatient = async (req, res) => {
+    
+}
+export { createPatient,getPatients,deletePatient,updatePatient };

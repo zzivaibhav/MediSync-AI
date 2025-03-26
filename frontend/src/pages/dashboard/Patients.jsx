@@ -11,15 +11,22 @@ import {
   IconButton,
   Pagination,
   Menu,
-  MenuItem
+  MenuItem,
+  Alert,
+  Avatar,
+  Tooltip
 } from '@mui/material';
 import {
   Search,
   Add,
   MoreVert,
   FilterList,
-  Sort
+  Sort,
+  Edit,
+  VisibilityOutlined,
+  DeleteOutlined
 } from '@mui/icons-material';
+import axios from 'axios';
 import { TableSkeleton } from '../../components/ui/Skeleton';
 import { useNavigate } from 'react-router-dom';
 
@@ -33,24 +40,44 @@ const Patients = () => {
   const [sortAnchorEl, setSortAnchorEl] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [sortBy, setSortBy] = useState('Name (A-Z)');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simulate loading data
-    const timer = setTimeout(() => {
-      // Mock patient data
-      const mockPatients = Array.from({ length: 50 }, (_, i) => ({
-        id: i + 1,
-        name: `Patient ${i + 1}`,
-        email: `patient${i + 1}@example.com`,
-        phone: `+1 (555) ${100 + i}-${1000 + i}`,
-        lastVisit: new Date(2023, 4, 15 - i).toLocaleDateString(),
-        status: i % 3 === 0 ? 'Active' : i % 3 === 1 ? 'Pending' : 'Inactive'
-      }));
-      setPatients(mockPatients);
-      setLoading(false);
-    }, 1500);
+    const fetchPatients = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) {
+          throw new Error('No access token found');
+        }
+        
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER}/doctor-api/get-patients`, 
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
+        );
+        
+        if (response.data && response.data.success) {
+          // Extract patients from the data array in the response
+          setPatients(response.data.data || []);
+        } else {
+          throw new Error(response.data?.message || 'Failed to fetch patients');
+        }
+      } catch (err) {
+        console.error('Error fetching patients:', err);
+        setError(err.message || 'Failed to fetch patients. Please try again later.');
+        setPatients([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchPatients();
   }, []);
 
   const handlePageChange = (event, value) => {
@@ -80,9 +107,9 @@ const Patients = () => {
   };
 
   const filteredPatients = patients.filter(patient => 
-    (selectedFilter === 'All' || patient.status === selectedFilter) &&
-    (patient.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-     patient.email.toLowerCase().includes(searchTerm.toLowerCase()))
+    patient.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    patient.phoneNumber.includes(searchTerm)
   );
 
   const sortedPatients = [...filteredPatients].sort((a, b) => {
@@ -92,9 +119,9 @@ const Patients = () => {
       case 'Name (Z-A)':
         return b.name.localeCompare(a.name);
       case 'Last Visit (Recent)':
-        return new Date(b.lastVisit) - new Date(a.lastVisit);
+        return new Date(b.createdAt) - new Date(a.createdAt);
       case 'Last Visit (Oldest)':
-        return new Date(a.lastVisit) - new Date(b.lastVisit);
+        return new Date(a.createdAt) - new Date(b.createdAt);
       default:
         return 0;
     }
@@ -104,6 +131,27 @@ const Patients = () => {
 
   const filterOptions = ['All', 'Active', 'Pending', 'Inactive'];
   const sortOptions = ['Name (A-Z)', 'Name (Z-A)', 'Last Visit (Recent)', 'Last Visit (Oldest)'];
+
+  // Function to get avatar text from name
+  const getAvatarText = (name) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  };
+
+  // Function to get random status for demo purposes
+  const getRandomStatus = () => {
+    const statuses = ['Active', 'Pending', 'Inactive'];
+    return statuses[Math.floor(Math.random() % 3)];
+  };
+
+  // Function to get status chip color
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'Active': return { bg: '#065f46', color: '#a7f3d0' };
+      case 'Pending': return { bg: '#854d0e', color: '#fef08a' };
+      case 'Inactive': return { bg: '#7f1d1d', color: '#fecaca' };
+      default: return { bg: '#1f2937', color: '#e5e7eb' };
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -273,13 +321,16 @@ const Patients = () => {
                       Name
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Contact
+                      Contact Information
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Last Visit
+                      Date of Birth
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                       Status
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      Registration Date
                     </th>
                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
                       Actions
@@ -287,45 +338,90 @@ const Patients = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
-                  {paginatedPatients.map((patient) => (
-                    <tr key={patient.id} className="hover:bg-gray-800">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                        {patient.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                        <div>{patient.email}</div>
-                        <div className="text-gray-400">{patient.phone}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                        {patient.lastVisit}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Chip 
-                          label={patient.status} 
-                          size="small"
-                          sx={{
-                            bgcolor: 
-                              patient.status === 'Active' ? 'rgba(16, 185, 129, 0.2)' :
-                              patient.status === 'Pending' ? 'rgba(245, 158, 11, 0.2)' :
-                              'rgba(239, 68, 68, 0.2)',
-                            color: 
-                              patient.status === 'Active' ? 'rgb(16, 185, 129)' :
-                              patient.status === 'Pending' ? 'rgb(245, 158, 11)' :
-                              'rgb(239, 68, 68)',
-                            borderRadius: '4px',
-                            '& .MuiChip-label': {
-                              px: 1,
-                            }
-                          }}
-                        />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 text-right">
-                        <IconButton size="small" sx={{ color: 'text.secondary' }}>
-                          <MoreVert />
-                        </IconButton>
-                      </td>
-                    </tr>
-                  ))}
+                  {paginatedPatients.map((patient) => {
+                    // Generate status for demo (replace with actual status from API when available)
+                    const status = patient.status || getRandomStatus();
+                    const statusStyle = getStatusColor(status);
+                    
+                    return (
+                      <tr key={patient.id} className="hover:bg-gray-800 transition-colors duration-150">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <Avatar 
+                              sx={{ 
+                                bgcolor: `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`,
+                                width: 40, 
+                                height: 40,
+                                fontSize: '0.9rem',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              {getAvatarText(patient.name)}
+                            </Avatar>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-white">{patient.name}</div>
+                              <div className="text-xs text-gray-400">ID: {patient.id}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-300 flex flex-col">
+                            <div className="flex items-center">
+                              <span className="material-icons text-xs mr-1" style={{ fontSize: '16px' }}>📧</span>
+                              {patient.email}
+                            </div>
+                            <div className="flex items-center text-gray-400">
+                              <span className="material-icons text-xs mr-1" style={{ fontSize: '16px' }}>📱</span>
+                              {patient.phoneNumber}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-300">{new Date(patient.DOB).toLocaleDateString()}</div>
+                          <div className="text-xs text-gray-400">
+                            {Math.floor((new Date() - new Date(patient.DOB)) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Chip 
+                            label={status}
+                            size="small"
+                            sx={{ 
+                              bgcolor: statusStyle.bg, 
+                              color: statusStyle.color,
+                              fontWeight: 'medium',
+                              '& .MuiChip-label': {
+                                px: 2
+                              }
+                            }}
+                          />
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-300">{new Date(patient.createdAt).toLocaleDateString()}</div>
+                          <div className="text-xs text-gray-400">{new Date(patient.createdAt).toLocaleTimeString()}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <div className="flex justify-end space-x-1">
+                            <Tooltip title="View Patient">
+                              <IconButton size="small" sx={{ color: '#60a5fa', '&:hover': { bgcolor: 'rgba(96, 165, 250, 0.1)' } }}>
+                                <VisibilityOutlined fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Edit Patient">
+                              <IconButton size="small" sx={{ color: '#22c55e', '&:hover': { bgcolor: 'rgba(34, 197, 94, 0.1)' } }}>
+                                <Edit fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete Patient">
+                              <IconButton size="small" sx={{ color: '#ef4444', '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.1)' } }}>
+                                <DeleteOutlined fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

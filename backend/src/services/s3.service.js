@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { s3Client } from "../utils/s3client.js";
 dotenv.config();
 
-const createDirectory = async (req, res) => {
+const createDirectory = async (name, email) => {
     try {
         // Add validation and debugging
         if (!process.env.S3_INPUT_BUCKET_NAME || !process.env.S3_OUTPUT_BUCKET_NAME) {
@@ -11,13 +11,9 @@ const createDirectory = async (req, res) => {
             return false;
         }
         
-        // Check if req.body exists
-        if (!req || !req.body || !req.body.name || !req.body.email) {
-            console.error("Request body is missing required fields");
-            return false;
-        }
+       
         
-        const { name, email } = req.body;
+        
         console.log(`Creating S3 directories for ${name} (${email})`);
         
         const folderName = `${name}-${email}/`;
