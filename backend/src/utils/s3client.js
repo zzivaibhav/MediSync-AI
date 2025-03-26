@@ -9,7 +9,7 @@ const s3Client = new S3Client({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     // If using session token (temporary credentials)
-    //sessionToken: process.env.AWS_SESSION_TOKEN,
+    sessionToken: process.env.AWS_SESSION_TOKEN,
   },
 });
 
