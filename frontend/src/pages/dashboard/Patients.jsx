@@ -15,7 +15,12 @@ import {
   Alert,
   Avatar,
   Tooltip,
-  Snackbar
+  Snackbar,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle
 } from '@mui/material';
 import {
   Search,
@@ -26,7 +31,8 @@ import {
   Edit,
   VisibilityOutlined,
   DeleteOutlined,
-  CheckCircle
+  CheckCircle,
+  ErrorOutline
 } from '@mui/icons-material';
 import axios from 'axios';
 import { TableSkeleton } from '../../components/ui/Skeleton';
@@ -49,6 +55,10 @@ const Patients = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
+
+  // New states for delete functionality
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [patientToDelete, setPatientToDelete] = useState(null);
 
   // Fetch patients data
   const fetchPatients = async () => {
@@ -118,6 +128,62 @@ const Patients = () => {
   // Handle notification close
   const handleNotificationClose = () => {
     setNotification({ ...notification, open: false });
+  };
+
+  // Handle opening delete dialog
+  const handleDeleteClick = (patient) => {
+    setPatientToDelete(patient);
+    setDeleteDialogOpen(true);
+  };
+
+  // Handle closing delete dialog
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setPatientToDelete(null);
+  };
+
+  // Handle patient deletion
+  const handleDeletePatient = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      
+      const response = await axios.delete(
+        `${import.meta.env.VITE_SERVER}/doctor-api/delete-patient`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          data: { id: patientToDelete.id }
+        }
+      );
+      
+      if (response.data && response.data.success) {
+        // Remove patient from local state
+        setPatients(patients.filter(patient => patient.id !== patientToDelete.id));
+        
+        // Show success notification
+        setNotification({
+          open: true,
+          message: 'Patient deleted successfully',
+          severity: 'success'
+        });
+      } else {
+        throw new Error(response.data?.message || 'Failed to delete patient');
+      }
+    } catch (err) {
+      console.error('Error deleting patient:', err);
+      setNotification({
+        open: true,
+        message: err.message || 'Failed to delete patient. Please try again later.',
+        severity: 'error'
+      });
+    } finally {
+      handleCloseDeleteDialog();
+    }
   };
 
   const handlePageChange = (event, value) => {
@@ -457,7 +523,11 @@ const Patients = () => {
                               </IconButton>
                             </Tooltip>
                             <Tooltip title="Delete Patient">
-                              <IconButton size="small" sx={{ color: '#ef4444', '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.1)' } }}>
+                              <IconButton 
+                                size="small" 
+                                sx={{ color: '#ef4444', '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.1)' } }}
+                                onClick={() => handleDeleteClick(patient)}
+                              >
                                 <DeleteOutlined fontSize="small" />
                               </IconButton>
                             </Tooltip>
@@ -494,6 +564,52 @@ const Patients = () => {
           onPatientUpdated={handlePatientUpdated}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        PaperProps={{
+          sx: {
+            bgcolor: '#1f2937',
+            color: 'white',
+            border: '1px solid #374151',
+            borderRadius: 2,
+            maxWidth: '500px',
+            width: '100%'
+          }
+        }}
+      >
+        <DialogTitle sx={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ErrorOutline color="error" /> Delete Patient
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: '#d1d5db' }}>
+            Are you sure you want to delete patient <strong>{patientToDelete?.name}</strong>?
+            This action cannot be undone and all patient data will be permanently deleted.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button 
+            onClick={handleCloseDeleteDialog} 
+            sx={{ 
+              color: '#d1d5db',
+              '&:hover': { bgcolor: 'rgba(209, 213, 219, 0.08)' }
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeletePatient} 
+            variant="contained"
+            color="error"
+            sx={{ borderRadius: 1 }}
+            startIcon={<DeleteOutlined />}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
       
       {/* Success/Error Notification */}
       <Snackbar
