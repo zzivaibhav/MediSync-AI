@@ -103,6 +103,74 @@ const deletePatient = async (req, res) => {
 }
 
 const updatePatient = async (req, res) => {
-    
+    try {
+        // Extract patient id and fields to update
+        const { id, name, email, DOB, phoneNumber } = req.body;
+        
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Patient ID is required"
+            });
+        }
+
+        // Check if patient exists and belongs to the doctor
+        const patient = await Patient.findOne({
+            where: {
+                id,
+                doctorID: req.user.sub
+            }
+        });
+
+        if (!patient) {
+            return res.status(404).json({
+                success: false,
+                message: "Patient not found or you don't have permission to update this patient"
+            });
+        }
+
+        // If email is being updated, check if it's already in use
+        if (email && email !== patient.email) {
+            const existingPatient = await Patient.findOne({ where: { email } });
+            if (existingPatient) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Email already in use by another patient"
+                });
+            }
+        }
+
+        // Create an object with only the fields that are provided
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (email) updateData.email = email;
+        if (DOB) updateData.DOB = DOB;
+        if (phoneNumber) updateData.phoneNumber = phoneNumber;
+
+        // If no fields to update
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "No fields provided for update"
+            });
+        }
+
+        // Update patient
+        await patient.update(updateData);
+
+        return res.status(200).json({
+            success: true,
+            message: "Patient updated successfully",
+            data: patient
+        });
+    } catch (error) {
+        console.error('Error updating patient:', error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update patient",
+            error: error.message
+        });
+    }
 }
-export { createPatient,getPatients,deletePatient,updatePatient };
+
+export { createPatient, getPatients, deletePatient, updatePatient };

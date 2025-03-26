@@ -14,7 +14,8 @@ import {
   MenuItem,
   Alert,
   Avatar,
-  Tooltip
+  Tooltip,
+  Snackbar
 } from '@mui/material';
 import {
   Search,
@@ -24,11 +25,13 @@ import {
   Sort,
   Edit,
   VisibilityOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  CheckCircle
 } from '@mui/icons-material';
 import axios from 'axios';
 import { TableSkeleton } from '../../components/ui/Skeleton';
 import { useNavigate } from 'react-router-dom';
+import EditPatientModal from '../../components/modals/EditPatientModal';
 
 const Patients = () => {
   const navigate = useNavigate();
@@ -41,44 +44,81 @@ const Patients = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [sortBy, setSortBy] = useState('Name (A-Z)');
   const [error, setError] = useState(null);
+  
+  // New states for edit functionality
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
+
+  // Fetch patients data
+  const fetchPatients = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER}/doctor-api/get-patients`, 
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        }
+      );
+      
+      if (response.data && response.data.success) {
+        setPatients(response.data.data || []);
+      } else {
+        throw new Error(response.data?.message || 'Failed to fetch patients');
+      }
+    } catch (err) {
+      console.error('Error fetching patients:', err);
+      setError(err.message || 'Failed to fetch patients. Please try again later.');
+      setPatients([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPatients = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const accessToken = localStorage.getItem('accessToken');
-        if (!accessToken) {
-          throw new Error('No access token found');
-        }
-        
-        const response = await axios.get(
-          `${import.meta.env.VITE_SERVER}/doctor-api/get-patients`, 
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          }
-        );
-        
-        if (response.data && response.data.success) {
-          // Extract patients from the data array in the response
-          setPatients(response.data.data || []);
-        } else {
-          throw new Error(response.data?.message || 'Failed to fetch patients');
-        }
-      } catch (err) {
-        console.error('Error fetching patients:', err);
-        setError(err.message || 'Failed to fetch patients. Please try again later.');
-        setPatients([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPatients();
   }, []);
+
+  // Handle opening edit modal
+  const handleEditClick = (patient) => {
+    setSelectedPatient(patient);
+    setEditModalOpen(true);
+  };
+
+  // Handle closing edit modal
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setSelectedPatient(null);
+  };
+
+  // Handle patient update success
+  const handlePatientUpdated = (updatedPatient) => {
+    // Update the patient in the local state
+    setPatients(patients.map(patient => 
+      patient.id === updatedPatient.id ? updatedPatient : patient
+    ));
+    
+    // Show success notification
+    setNotification({
+      open: true,
+      message: 'Patient information updated successfully',
+      severity: 'success'
+    });
+  };
+
+  // Handle notification close
+  const handleNotificationClose = () => {
+    setNotification({ ...notification, open: false });
+  };
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -408,7 +448,11 @@ const Patients = () => {
                               </IconButton>
                             </Tooltip>
                             <Tooltip title="Edit Patient">
-                              <IconButton size="small" sx={{ color: '#22c55e', '&:hover': { bgcolor: 'rgba(34, 197, 94, 0.1)' } }}>
+                              <IconButton 
+                                size="small" 
+                                sx={{ color: '#22c55e', '&:hover': { bgcolor: 'rgba(34, 197, 94, 0.1)' } }}
+                                onClick={() => handleEditClick(patient)}
+                              >
                                 <Edit fontSize="small" />
                               </IconButton>
                             </Tooltip>
@@ -440,6 +484,40 @@ const Patients = () => {
           )}
         </CardContent>
       </Card>
+      
+      {/* Edit Patient Modal */}
+      {selectedPatient && (
+        <EditPatientModal
+          open={editModalOpen}
+          handleClose={handleCloseEditModal}
+          patient={selectedPatient}
+          onPatientUpdated={handlePatientUpdated}
+        />
+      )}
+      
+      {/* Success/Error Notification */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={5000}
+        onClose={handleNotificationClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleNotificationClose}
+          severity={notification.severity}
+          sx={{ 
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: notification.severity === 'success' ? '#065f46' : '#7f1d1d',
+            color: notification.severity === 'success' ? '#a7f3d0' : '#fecaca'
+          }}
+          icon={notification.severity === 'success' ? <CheckCircle /> : undefined}
+          variant="filled"
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
