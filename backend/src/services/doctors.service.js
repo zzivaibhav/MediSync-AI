@@ -2,21 +2,36 @@ import Patient from '../model/patient.model.js';
 import {createDirectory, deleteDirectory} from './s3.service.js'
 const createPatient = async (req, res) => {
     try {
-        const {name, email, DOB, image, phoneNumber} = req.body;
+        // Log the incoming request body to debug
+        console.log('Received data:', req.body);
 
+        // Extract fields from req.body
+        const {name, email, DOB, phoneNumber} = req.body;
+
+        // Log the extracted values
+        console.log('Extracted values:', { name, email, DOB, phoneNumber });
+        if (await Patient.findOne({ where: { email : email } })) {
+            return res.status(400).json({
+                success: false,
+                message: "Patient with this email already exists"
+            });
+        }
         const patientData = await Patient.create({
             name,
             email,
             DOB,
-            image,
             phoneNumber,
             doctorID: req.user.sub
         });
+
+       
+        // Create directory only once with name and email
         const s3_patient = await createDirectory(name, email);
         
-        if(patientData){
-            await createDirectory(req,res);
-       }
+        // Remove the second createDirectory call that's using incorrect parameters
+        // if(patientData){
+        //     await createDirectory(req,res);
+        // }
          
         return res.status(201).json({
             success: true,

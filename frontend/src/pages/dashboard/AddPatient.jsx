@@ -9,10 +9,9 @@ import {
   Stack,
   IconButton,
   Alert,
-  FormHelperText,
   InputAdornment
 } from '@mui/material';
-import { ArrowBack, CalendarToday, Phone, Email, Person, PhotoCamera } from '@mui/icons-material';
+import { ArrowBack, CalendarToday, Phone, Email, Person } from '@mui/icons-material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -24,14 +23,12 @@ const AddPatient = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
   
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     DOB: null,
-    phoneNumber: '',
-    image: null
+    phoneNumber: ''
   });
 
   const [formErrors, setFormErrors] = useState({
@@ -68,23 +65,6 @@ const AddPatient = () => {
         ...formErrors,
         DOB: ''
       });
-    }
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({
-        ...formData,
-        image: file
-      });
-      
-      // Create image preview
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -130,30 +110,26 @@ const AddPatient = () => {
     
     setLoading(true);
     
-    const data = new FormData();
-    data.append('name', formData.name);
-    data.append('email', formData.email);
-    data.append('DOB', formData.DOB.toISOString());
-    data.append('phoneNumber', formData.phoneNumber);
-    if (formData.image) {
-      data.append('image', formData.image);
-    }
+    // Create a regular JSON object instead of FormData
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      DOB: formData.DOB.toISOString(),
+      phoneNumber: formData.phoneNumber
+    };
 
     // Add more detailed debug logs
-    console.log('Form Data entries:');
-    for (let pair of data.entries()) {
-      console.log(pair[0] + ': ' + pair[1]);
-    }
+    console.log('Sending data:', payload);
     
     try {
       const token = localStorage.getItem('accessToken');
       const serverUrl = import.meta.env.VITE_SERVER || 'http://localhost:8080';
       
-      // Use a cleaner URL construction and avoid setting the Content-Type for multipart/form-data
-      const response = await axios.post(`${serverUrl}/doctor-api/create-patient`, data, {
+      // Use JSON content type instead of multipart/form-data
+      const response = await axios.post(`${serverUrl}/doctor-api/create-patient`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
-          // Let Axios set the correct Content-Type with boundary for multipart/form-data
+          'Content-Type': 'application/json'
         }
       });
       
@@ -366,65 +342,6 @@ const AddPatient = () => {
                       },
                     }}
                   />
-                </Box>
-              </Box>
-
-              <Box>
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  p: 3, 
-                  border: '2px dashed #4b5563',
-                  borderRadius: 2,
-                  bgcolor: '#374151',
-                  mb: 2
-                }}>
-                  {imagePreview ? (
-                    <img 
-                      src={imagePreview} 
-                      alt="Patient" 
-                      style={{ maxWidth: '100%', maxHeight: '200px', marginBottom: '16px', borderRadius: '8px' }}
-                    />
-                  ) : (
-                    <Box 
-                      sx={{ 
-                        width: '100%', 
-                        height: '100px', 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        alignItems: 'center',
-                        mb: 2
-                      }}
-                    >
-                      <PhotoCamera sx={{ fontSize: 40, color: '#9ca3af' }} />
-                    </Box>
-                  )}
-                  
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    sx={{ 
-                      borderRadius: 2,
-                      borderColor: '#4b5563',
-                      color: 'white',
-                      '&:hover': {
-                        borderColor: '#60a5fa',
-                        bgcolor: 'rgba(96, 165, 250, 0.04)',
-                      }
-                    }}
-                  >
-                    {imagePreview ? 'Change Image' : 'Upload Patient Image'}
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
-                  </Button>
-                  <FormHelperText sx={{ color: '#9ca3af', textAlign: 'center', mt: 1 }}>
-                    Optional: Upload a profile picture of the patient
-                  </FormHelperText>
                 </Box>
               </Box>
 
