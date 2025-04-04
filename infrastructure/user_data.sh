@@ -23,7 +23,7 @@ INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 AVAILABILITY_ZONE=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
 
 # Create a simple HTML file showing IP information
-sudo cat > /usr/share/nginx/html/index.html << EOF
+sudo cat > /usr/share/nginx/html/index.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
@@ -58,21 +58,27 @@ sudo cat > /usr/share/nginx/html/index.html << EOF
     <div class="info-box">
         <h1>EC2 Instance Information</h1>
         <div class="info-item">
-            <strong>Public IP:</strong> ${PUBLIC_IP}
+            <strong>Public IP:</strong> PUBLICIP
         </div>
         <div class="info-item">
-            <strong>Private IP:</strong> ${PRIVATE_IP}
+            <strong>Private IP:</strong> PRIVATEIP
         </div>
         <div class="info-item">
-            <strong>Instance ID:</strong> ${INSTANCE_ID}
+            <strong>Instance ID:</strong> INSTANCEID
         </div>
         <div class="info-item">
-            <strong>Availability Zone:</strong> ${AVAILABILITY_ZONE}
+            <strong>Availability Zone:</strong> AZ
         </div>
     </div>
 </body>
 </html>
 EOF
+
+# Replace placeholders with actual values using sed
+sudo sed -i "s/PUBLICIP/$PUBLIC_IP/g" /usr/share/nginx/html/index.html
+sudo sed -i "s/PRIVATEIP/$PRIVATE_IP/g" /usr/share/nginx/html/index.html
+sudo sed -i "s/INSTANCEID/$INSTANCE_ID/g" /usr/share/nginx/html/index.html
+sudo sed -i "s/AZ/$AVAILABILITY_ZONE/g" /usr/share/nginx/html/index.html
 
 # Restart Nginx to ensure the new page is loaded
 sudo systemctl restart nginx

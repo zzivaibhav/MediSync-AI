@@ -24,9 +24,10 @@ const authenticateJWT = async (req, res, next) => {
             clientId: process.env.COGNITO_CLIENT_ID,
         });
 
-        // Verify the token
+        // Verify the token and attach the decoded payload to the request object
         const decoded = await verifier.verify(token);
         req.user = decoded;
+        console.log("Decoded JWT:", decoded);
         next();
     } catch (error) {
         console.error("Authentication Error:", error);

@@ -5,8 +5,12 @@ import {hashGenerator} from '../utils/cognito.hash.js'
 import jwt from 'jsonwebtoken'
 import Doctor from '../model/doctor.model.js'
 import { where } from 'sequelize';
+import {ApiResponse} from '../utils/ApiResponse.js'
+
+
+// AWS Cognito Configuration
 const cognito = new AWS.CognitoIdentityServiceProvider();
- 
+
 const handleSignup = async (req, res) => {
   const { email, password, name, phone_number } = req.body;
   console.log("Signup attempt for:", email);
@@ -32,10 +36,10 @@ const handleSignup = async (req, res) => {
     const existingDoctor = await Doctor.findOne({ where: { email: email }});
     
     if (existingDoctor) {
-      return res.status(400).json({
-        success: false,
-        message: "Doctor already exists with this email"
-      });
+      return res.status(400).json(
+        new ApiResponse(false, "Doctor already exists with this email", null)
+      )
+      
     }
     
     // 1. FIRST TRY COGNITO SIGNUP (CLOUD)
@@ -44,7 +48,7 @@ const handleSignup = async (req, res) => {
       throw new Error("Cognito signup failed: No UserSub returned");
     }
 
-    // 2. ONLY IF COGNITO SUCCEEDS, SAVE TO MONGODB (LOCAL)
+    // 2. ONLY IF COGNITO SUCCEEDS, SAVE TO MYSQL DATABASE (LOCAL)
     const doctorData = new Doctor({
       email: email,
       name: name,
@@ -53,14 +57,12 @@ const handleSignup = async (req, res) => {
     });
 
     const savedDoctor = await doctorData.save();
-    console.log("Doctor saved to MongoDB:", savedDoctor);
+    console.log("Doctor saved to Local database:", savedDoctor);
 
     // 3. RETURN SUCCESS RESPONSE
-    res.json({
-      success: true,
-      cognitoData: cognitoResponse,
-      doctorData: savedDoctor,
-    });
+    return res.status(200).json(
+      new ApiResponse(true,savedDoctor, "Doctor registered successfully")
+    );
 
   } catch (error) {
     console.error("Signup Error:", error.message);

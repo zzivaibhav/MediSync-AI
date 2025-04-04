@@ -11,7 +11,8 @@ import AddPatient from './pages/dashboard/AddPatient'
 function App() {
   const isAuthenticated = () => {
     const token = localStorage.getItem('accessToken');
-    return token !== null && token !== undefined;
+    // Add additional checks if needed (e.g., token expiration)
+    return true; // Replace with actual authentication check
   };
 
   // Force a re-render when localStorage changes

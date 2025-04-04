@@ -26,7 +26,7 @@ export default function Login() {
 
     try {
       setLoading(true);
-      const serverURL = 'http://localhost:8080';
+      const serverURL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
 
       const response = await axios.post(`${serverURL}/cognito/login`, 
         {
@@ -56,13 +56,11 @@ export default function Login() {
       setSnackbar({
         open: true,
         message: 'Login successful! Redirecting...',
-        severity: 'success'
+        severity: 'success',
       });
 
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1000);
+      // Redirect immediately after setting tokens
+      navigate('/dashboard');
 
     } catch (err) {
       console.error('Error details:', err);
