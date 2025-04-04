@@ -10,10 +10,7 @@ const createDirectory = async (name, email) => {
             console.error("S3 bucket environment variables are not properly set");
             return false;
         }
-        
-       
-        
-        
+    
         console.log(`Creating S3 directories for ${name} (${email})`);
         
         const folderName = `${name}-${email}/`;
@@ -60,6 +57,7 @@ const deleteDirectory = async (name, email) => {
             return false;
         }
         
+        console.log(`Deleting S3 directories for ${name} (${email})`);
         const folderName = `${name}-${email}/`;
         // Ensure folderName has trailing slash for S3
         const baseFolder = folderName.endsWith('/') ? folderName : `${folderName}/`;
@@ -120,5 +118,36 @@ async function deleteFromBucket(bucketName, prefix) {
     return true;
 }
 
-export { createDirectory, deleteDirectory };
+// function to upload a single file to the S3 bucket
+const uploadFile = async(folderName, file)=> {
+
+    try {
+        if (!file) {
+            console.error("No file provided for upload");
+            return false;
+        }
+        if (!folderName) {
+            console.error("Folder name cannot be empty");
+            return false;
+        }
+        // Ensure folderName has trailing slash for S3
+        const baseFolder = folderName.endsWith('/') ? folderName : `${folderName}/`;
+        const params = {
+            Bucket: process.env.S3_INPUT_BUCKET_NAME,
+            Key: `${baseFolder}${Date.now()}-${file.originalname}`,
+            Body: file.buffer,
+            ContentType: file.mimetype
+        };
+        const command = new PutObjectCommand(params);
+        await s3Client.send(command);
+        console.log("File uploaded successfully to S3");
+        return true;
+
+    } catch (error) {
+        console.error("Error uploading file to S3:", error);
+        return false;
+    }
+}
+
+export { createDirectory, deleteDirectory, uploadFile };
 

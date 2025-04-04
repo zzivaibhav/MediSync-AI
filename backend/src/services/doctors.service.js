@@ -1,5 +1,8 @@
 import Patient from '../model/patient.model.js';
-import {createDirectory, deleteDirectory} from './s3.service.js'
+import {createDirectory, deleteDirectory,uploadFile } from './s3.service.js'
+import fs from 'fs';
+
+import { ApiResponse } from '../utils/ApiResponse.js';
 const createPatient = async (req, res) => {
     try {
         // Log the incoming request body to debug
@@ -92,7 +95,7 @@ const deletePatient = async (req, res) => {
     
     return res.status(200).json({
         success: true,
-        message: "Patient deleted"
+        message: "Patient deleted and associated data removed successfully"
     });
 
 
@@ -173,4 +176,63 @@ const updatePatient = async (req, res) => {
     }
 }
 
-export { createPatient, getPatients, deletePatient, updatePatient };
+
+const uploadAudio = async(req,res) =>{
+   const{name, email} = req.body;
+    console.log("Received data:", req.body);
+    console.log("Received file:", req.file);
+    const file = req.file;
+    
+    // validation checks
+
+        //existance of the file
+        if(!file){
+            return res.status(400).json(
+                new ApiResponse(false,null, "No file provided")
+            )
+        }
+
+        //existance of the name and email
+        if(!name || !email){
+            return res.status(400).json(
+                new ApiResponse(false,null, "Name and email are required")
+            )
+        }
+ 
+    //upload the file to s3 using the utility function
+    const uploadResult = await uploadFile(`${name}-${email}/`, file);
+    
+    if(uploadResult){
+           //delete the file from local storage
+           fs.unlink(file.path, (err) => {
+            if (err) {
+                console.error("Error deleting file from local ❌:", err);
+            } else {
+                console.log("File deleted successfully from local storage ✅");
+                console.log("Local path from where the file was deleted:", file.path);
+            }
+        });
+    }
+     
+
+    //return the appropriate responses.
+    if(!uploadResult){
+        return res.status(500).json(
+            new ApiResponse(false,"Failed to upload file", null)
+        )
+    }
+
+    if(uploadResult){
+        console.log("File uploaded successfully ✅");
+
+        return res.status(200).json(
+            new ApiResponse(true,"File uploaded successfully", {
+                fileName: file.originalname,
+                filePath: `${name}-${email}/${file.originalname}`,
+                bucketName: process.env.S3_INPUT_BUCKET_NAME
+            })
+        )
+    }
+  
+}
+export { createPatient, getPatients, deletePatient, updatePatient, uploadAudio };

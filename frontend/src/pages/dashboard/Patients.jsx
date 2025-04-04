@@ -20,7 +20,8 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  LinearProgress
 } from '@mui/material';
 import {
   Search,
@@ -32,7 +33,8 @@ import {
   VisibilityOutlined,
   DeleteOutlined,
   CheckCircle,
-  ErrorOutline
+  ErrorOutline,
+  CloudUpload
 } from '@mui/icons-material';
 import axios from 'axios';
 import { TableSkeleton } from '../../components/ui/Skeleton';
@@ -60,6 +62,12 @@ const Patients = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState(null);
 
+  // New states for audio upload functionality
+  const [audioUploadDialogOpen, setAudioUploadDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadingPatient, setUploadingPatient] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   // Fetch patients data
   const fetchPatients = async () => {
     setLoading(true);
@@ -72,7 +80,7 @@ const Patients = () => {
       }
       
       const response = await axios.get(
-        `${import.meta.env.VITE_SERVER}/doctor-api/get-patients`, 
+        `${import.meta.env.VITE_SERVER_URL}/doctor-api/get-patients`, 
         {
           headers: {
             Authorization: `Bearer ${accessToken}`
@@ -151,7 +159,7 @@ const Patients = () => {
       }
       
       const response = await axios.delete(
-        `${import.meta.env.VITE_SERVER}/doctor-api/delete-patient`,
+        `${import.meta.env.VITE_SERVER_URL}/doctor-api/delete-patient`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -183,6 +191,69 @@ const Patients = () => {
       });
     } finally {
       handleCloseDeleteDialog();
+    }
+  };
+
+  // Handle opening audio upload dialog
+  const handleAudioUploadClick = (patient) => {
+    setUploadingPatient(patient);
+    setAudioUploadDialogOpen(true);
+  };
+
+  // Handle audio file selection
+  const handleAudioFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('audio/')) {
+      setSelectedFile(file);
+    } else {
+      setNotification({
+        open: true,
+        message: 'Please select a valid audio file',
+        severity: 'error'
+      });
+    }
+  };
+
+  // Handle audio upload
+  const handleAudioUpload = async () => {
+    if (!selectedFile || !uploadingPatient) return;
+
+    const formData = new FormData();
+    formData.append('audio', selectedFile);
+    formData.append('patientId', uploadingPatient.id);
+
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) throw new Error('No access token found');
+
+      await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/doctor-api/upload-conversation`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          onUploadProgress: (progressEvent) => {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(progress);
+          },
+        }
+      );
+
+      setNotification({
+        open: true,
+        message: 'Audio uploaded successfully',
+        severity: 'success'
+      });
+      setAudioUploadDialogOpen(false);
+      setSelectedFile(null);
+      setUploadProgress(0);
+    } catch (err) {
+      setNotification({
+        open: true,
+        message: err.message || 'Failed to upload audio',
+        severity: 'error'
+      });
     }
   };
 
@@ -522,6 +593,15 @@ const Patients = () => {
                                 <Edit fontSize="small" />
                               </IconButton>
                             </Tooltip>
+                            <Tooltip title="Upload Audio">
+                              <IconButton 
+                                size="small" 
+                                sx={{ color: '#f59e0b', '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.1)' } }}
+                                onClick={() => handleAudioUploadClick(patient)}
+                              >
+                                <CloudUpload fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
                             <Tooltip title="Delete Patient">
                               <IconButton 
                                 size="small" 
@@ -607,6 +687,67 @@ const Patients = () => {
             startIcon={<DeleteOutlined />}
           >
             Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
+      {/* Audio Upload Dialog */}
+      <Dialog
+        open={audioUploadDialogOpen}
+        onClose={() => setAudioUploadDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            bgcolor: '#1f2937',
+            color: 'white',
+            border: '1px solid #374151',
+            borderRadius: 2,
+          }
+        }}
+      >
+        <DialogTitle>Upload Audio Conversation</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: '#d1d5db', mb: 2 }}>
+            Upload audio conversation for patient: {uploadingPatient?.name}
+          </DialogContentText>
+          <Button
+            variant="outlined"
+            component="label"
+            startIcon={<CloudUpload />}
+            sx={{ mb: 2 }}
+          >
+            Choose Audio File
+            <input
+              type="file"
+              hidden
+              accept="audio/*"
+              onChange={handleAudioFileChange}
+            />
+          </Button>
+          {selectedFile && (
+            <Typography variant="body2" sx={{ color: '#d1d5db' }}>
+              Selected file: {selectedFile.name}
+            </Typography>
+          )}
+          {uploadProgress > 0 && (
+            <Box sx={{ width: '100%', mt: 2 }}>
+              <LinearProgress variant="determinate" value={uploadProgress} />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => setAudioUploadDialogOpen(false)}
+            sx={{ color: '#d1d5db' }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleAudioUpload}
+            variant="contained"
+            disabled={!selectedFile}
+            startIcon={<CloudUpload />}
+          >
+            Upload
           </Button>
         </DialogActions>
       </Dialog>
