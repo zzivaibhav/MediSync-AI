@@ -1,5 +1,5 @@
 import Patient from '../model/patient.model.js';
-import {createDirectory, deleteDirectory,uploadFile } from './s3.service.js'
+import {createDirectory, deleteDirectory,uploadFile  } from './s3.service.js'
 import fs from 'fs';
 
 import { ApiResponse } from '../utils/ApiResponse.js';
@@ -29,7 +29,7 @@ const createPatient = async (req, res) => {
 
        
         // Create directory only once with name and email
-        const s3_patient = await createDirectory(name, email);
+        const s3_patient = await createDirectory( email);
         
         // Remove the second createDirectory call that's using incorrect parameters
         // if(patientData){
@@ -90,7 +90,7 @@ const deletePatient = async (req, res) => {
         });
     }
      
-    await deleteDirectory(patient.name, patient.email);
+    await deleteDirectory( patient.email);
     await patient.destroy();
     
     return res.status(200).json({
@@ -161,6 +161,7 @@ const updatePatient = async (req, res) => {
         // Update patient
         await patient.update(updateData);
 
+        
         return res.status(200).json({
             success: true,
             message: "Patient updated successfully",

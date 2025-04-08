@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { s3Client } from "../utils/s3client.js";
 dotenv.config();
 
-const createDirectory = async (name, email) => {
+const createDirectory = async (  email) => {
     try {
         // Add validation and debugging
         if (!process.env.S3_INPUT_BUCKET_NAME || !process.env.S3_OUTPUT_BUCKET_NAME) {
@@ -11,9 +11,9 @@ const createDirectory = async (name, email) => {
             return false;
         }
     
-        console.log(`Creating S3 directories for ${name} (${email})`);
+        console.log(`Creating S3 directories for   (${email})`);
         
-        const folderName = `${name}-${email}/`;
+        const folderName = `${email}/`;
         if (!folderName) {
             return res.status(400).json({
                 success: false,
@@ -50,15 +50,15 @@ const createDirectory = async (name, email) => {
     }
 }
 
-const deleteDirectory = async (name, email) => {
+const deleteDirectory = async (  email) => {
     try {
-        if (!name || !email) {
+        if (  !email) {
             console.error("Name and email are required for directory deletion");
             return false;
         }
         
-        console.log(`Deleting S3 directories for ${name} (${email})`);
-        const folderName = `${name}-${email}/`;
+        console.log(`Deleting S3 directories for   (${email})`);
+        const folderName = `${email}/`;
         // Ensure folderName has trailing slash for S3
         const baseFolder = folderName.endsWith('/') ? folderName : `${folderName}/`;
         
@@ -149,5 +149,7 @@ const uploadFile = async(folderName, file)=> {
     }
 }
 
-export { createDirectory, deleteDirectory, uploadFile };
+ 
+
+export { createDirectory, deleteDirectory, uploadFile  };
 
