@@ -203,7 +203,7 @@ const uploadAudio = async(req,res) =>{
         }
  
     //upload the file to s3 using the utility function
-    const uploadResult = await uploadFile(`${name}-${email}/`, file);
+    const uploadResult = await uploadFile(`${email}/`, file);
     
     if(uploadResult){
            //delete the file from local storage
