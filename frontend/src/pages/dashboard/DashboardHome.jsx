@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { 
   Grid, 
   Typography,
@@ -248,14 +249,30 @@ const ProcessingQueue = ({ loading }) => {
 
 const DashboardHome = () => {
   const [loading, setLoading] = useState(true);
+  const [patientCount, setPatientCount] = useState(0);
 
   useEffect(() => {
-    // Simulate loading data
-    const timer = setTimeout(() => {
+    const fetchData = async () => {
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_URL}/doctor-api/get-patients`, 
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
+        );
+        console.log('Fetched patients:', response.data);
+        setPatientCount(response.data.data?.length || 0);
+      } catch (error) {
+        console.error('Error fetching patient count:', error);
+        setPatientCount(0);
+      }
       setLoading(false);
-    }, 1500);
+    };
 
-    return () => clearTimeout(timer);
+    fetchData();
   }, []);
 
   return (
@@ -281,7 +298,7 @@ const DashboardHome = () => {
           <StatsCard 
             loading={loading}
             title="Total Patients" 
-            value="384" 
+            value={patientCount.toString()} 
             icon={<People />}
             change={12.5} 
             color="primary" 
