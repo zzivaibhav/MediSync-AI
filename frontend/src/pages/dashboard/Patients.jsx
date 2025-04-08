@@ -219,14 +219,15 @@ const Patients = () => {
     if (!selectedFile || !uploadingPatient) return;
 
     const formData = new FormData();
-    formData.append('audio', selectedFile);
+    formData.append('file', selectedFile);
     formData.append('patientId', uploadingPatient.id);
-
+    formData.append("name", uploadingPatient.name);
+    formData.append("email", uploadingPatient.email);
     try {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) throw new Error('No access token found');
 
-      await axios.post(
+    const response =   await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/doctor-api/upload-conversation`,
         formData,
         {
@@ -239,6 +240,9 @@ const Patients = () => {
           },
         }
       );
+    
+
+      
 
       setNotification({
         open: true,

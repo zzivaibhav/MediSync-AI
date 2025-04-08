@@ -123,7 +123,7 @@ const AddPatient = () => {
     
     try {
       const token = localStorage.getItem('accessToken');
-      const serverUrl = import.meta.env.VITE_SERVER || 'http://localhost:8080';
+      const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:8080';
       
       // Use JSON content type instead of multipart/form-data
       const response = await axios.post(`${serverUrl}/doctor-api/create-patient`, payload, {

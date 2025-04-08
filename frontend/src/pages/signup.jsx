@@ -33,7 +33,7 @@ export default function SignUp() {
       setLoading(true);
       const formattedPhoneNumber = `+1${formData.phone_number.replace(/\D/g, '')}`;
       
-      const serverURL = import.meta.env.VITE_SERVER || 'http://localhost:5000';
+      const serverURL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
 
       const response = await axios.post(`${serverURL}/cognito/signup`, 
         {

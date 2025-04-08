@@ -63,7 +63,7 @@ const EditPatientModal = ({ open, handleClose, patient, onPatientUpdated }) => {
         }
 
         const response = await axios.put(
-          `${import.meta.env.VITE_SERVER}/doctor-api/update-patient`,
+          `${import.meta.env.VITE_SERVER_URL}/doctor-api/update-patient`,
           {
             id: patient.id,
             ...values,

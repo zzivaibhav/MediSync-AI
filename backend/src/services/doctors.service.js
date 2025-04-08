@@ -179,8 +179,8 @@ const updatePatient = async (req, res) => {
 
 const uploadAudio = async(req,res) =>{
    const{name, email} = req.body;
-    console.log("Received data:", req.body);
-    console.log("Received file:", req.file);
+    
+     
     const file = req.file;
     
     // validation checks
@@ -194,8 +194,10 @@ const uploadAudio = async(req,res) =>{
 
         //existance of the name and email
         if(!name || !email){
+           
             return res.status(400).json(
-                new ApiResponse(false,null, "Name and email are required")
+                 new ApiResponse(false,null, "Name and email are required")
+              
             )
         }
  
