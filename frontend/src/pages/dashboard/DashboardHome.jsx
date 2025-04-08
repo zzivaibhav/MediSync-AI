@@ -194,7 +194,7 @@ const ProcessingQueue = ({ loading }) => {
       <CardHeader 
         title="Processing Queue" 
         action={
-          <Button color="primary" size="small" component={Link} to="/dashboard/recordings">
+          <Button color="primary" size="small" component={Link} to="/dashboard/patients">
             Upload New
           </Button>
         }
@@ -324,16 +324,7 @@ const DashboardHome = () => {
             color="success" 
           />
         </Grid>
-        <Grid item xs={12} sm={6} lg={3}>
-          <StatsCard 
-            loading={loading}
-            title="Processed" 
-            value="90%" 
-            icon={<Assessment />}
-            change={4.1} 
-            color="warning" 
-          />
-        </Grid>
+        
 
         <Grid item xs={12} lg={8}>
           <RecentTranscripts loading={loading} />
