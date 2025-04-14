@@ -19,28 +19,38 @@ const createPatient = async (req, res) => {
                 message: "Patient with this email already exists"
             });
         }
-        const patientData = await Patient.create({
-            name,
-            email,
-            DOB,
-            phoneNumber,
-            doctorID: req.user.sub
-        });
+        
 
        
         // Create directory only once with name and email
         const s3_patient = await createDirectory( email);
-        
-        // Remove the second createDirectory call that's using incorrect parameters
-        // if(patientData){
-        //     await createDirectory(req,res);
-        // }
+        if(s3_patient){
+            const patientData = await Patient.create({
+                name,
+                email,
+                DOB,
+                phoneNumber,
+                doctorID: req.user.sub
+            });
+
+            return res.status(201).json({
+                success: true,
+                message: "Patient created successfully",
+                data: patientData
+            });
+        }
+
+        //log 
+        if(!s3_patient){
+            console.log("==========================================");
+            console.log("Failed to create directory on S3");
+            console.log("==========================================");
+        }
+         return res.status(500).json(
+            new ApiResponse(false,null,"Failed to create directory")
+         )
          
-        return res.status(201).json({
-            success: true,
-            message: "Patient created successfully",
-            data: patientData
-        });
+       
     } catch (error) {
         console.error('Error creating patient:', error);
         return res.status(500).json({
