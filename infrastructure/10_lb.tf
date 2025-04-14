@@ -40,7 +40,7 @@ resource "aws_lb_target_group" "frontend-tg" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.application-load_balancer.id]
-  subnets            = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+  subnets            = [aws_subnet.az_1public_subnet_1.id, aws_subnet.az_2public_subnet_1.id]
   
   enable_deletion_protection = false
  

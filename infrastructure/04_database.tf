@@ -1,6 +1,6 @@
 # resource "aws_db_subnet_group" "database_sb" {
 #   name       = "medi-syb-ai-db-sb"
-#   subnet_ids = [aws_subnet.private_subnet_3.id, aws_subnet.private_subnet_6.id]
+#   subnet_ids = [aws_subnet.az_2private_subnet_3.id, aws_subnet.az_1private_subnet_3.id]
 
 #   tags = {
 #     Name = "medi-syb-ai-db-sb"

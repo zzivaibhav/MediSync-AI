@@ -21,7 +21,7 @@ resource "aws_internet_gateway" "igw" {
 
 #subents for the VPC
 //public subnet for NAT gateway in first AZ
-resource "aws_subnet" "public_subnet_1" {
+resource "aws_subnet" "az_1public_subnet_1" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = "10.0.1.0/24"
   availability_zone = var.az-1
@@ -32,7 +32,7 @@ resource "aws_subnet" "public_subnet_1" {
 }
 
 // private subnet for frontend EC2 in the first AZ
-resource "aws_subnet" "private_subnet_1" {
+resource "aws_subnet" "az_1private_subnet_1" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = "10.0.2.0/24"
   availability_zone = var.az-1
@@ -44,7 +44,7 @@ resource "aws_subnet" "private_subnet_1" {
 }
 
 // private subnet for backend EC2 in the first AZ
-resource "aws_subnet" "private_subnet_2" {
+resource "aws_subnet" "az_1private_subnet_2" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = "10.0.3.0/24"
   availability_zone = var.az-1
@@ -55,8 +55,8 @@ resource "aws_subnet" "private_subnet_2" {
 
 }
 
-
-resource "aws_subnet" "private_subnet_3" {
+// private subnet for the database in first AZ
+resource "aws_subnet" "az_1private_subnet_3" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = "10.0.4.0/24"
   availability_zone = var.az-1
@@ -68,7 +68,7 @@ resource "aws_subnet" "private_subnet_3" {
 }
 
 //public subnet for NAT gateway in second AZ
-resource "aws_subnet" "public_subnet_2" {
+resource "aws_subnet" "az_2public_subnet_1" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = "10.0.5.0/24"
   availability_zone = var.az-2
@@ -79,7 +79,7 @@ resource "aws_subnet" "public_subnet_2" {
 }
 
 // private subnet for frontend EC2 in the second AZ
-resource "aws_subnet" "private_subnet_4" {
+resource "aws_subnet" "az_2private_subnet_1" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = "10.0.6.0/24"
   availability_zone = var.az-2
@@ -90,7 +90,7 @@ resource "aws_subnet" "private_subnet_4" {
 }
 
 // private subnet for backend EC2 in the second AZ
-resource "aws_subnet" "private_subnet_5" {
+resource "aws_subnet" "az_2private_subnet_2" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = "10.0.7.0/24"
   availability_zone = var.az-2
@@ -100,8 +100,8 @@ resource "aws_subnet" "private_subnet_5" {
     depends_on = [ aws_vpc.vpc ]
 }
 
- 
-resource "aws_subnet" "private_subnet_6" {
+//private subnet for standby database in the second AZ
+resource "aws_subnet" "az_2private_subnet_3" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = "10.0.8.0/24"
   availability_zone = var.az-2
@@ -130,7 +130,7 @@ resource "aws_route_table" "public-subnet-route-table-az-1" {
 
     }
 
-    depends_on = [ aws_internet_gateway.igw, aws_subnet.public_subnet_1 ]
+    depends_on = [ aws_internet_gateway.igw, aws_subnet.az_1public_subnet_1 ]
 }
 
 //module-1 route table
@@ -152,7 +152,7 @@ resource "aws_route_table" "front-end-route-table-az-1" {
 
     }
 
- depends_on = [ aws_internet_gateway.igw,aws_vpc.vpc, aws_nat_gateway.nat-1 , aws_subnet.private_subnet_1]
+ depends_on = [ aws_internet_gateway.igw,aws_vpc.vpc, aws_nat_gateway.nat-1 , aws_subnet.az_1private_subnet_1]
 }
 
 //module-2 route table
@@ -171,26 +171,27 @@ resource "aws_route_table" "backend-route-table-az-1" {
 
     }
 
-    depends_on = [ aws_internet_gateway.igw, aws_subnet.private_subnet_2 ]
+    depends_on = [ aws_internet_gateway.igw, aws_subnet.az_1private_subnet_2 ]
+}
+
+resource "aws_route_table" "database-route-table-az-1" {
+  vpc_id = aws_vpc.vpc.id
+ route {
+    cidr_block = "10.0.0.0/16"
+    gateway_id = "local"
+ }
+ tags = {
+   Name = "module-3-az-1-rt"
+ }
+  depends_on = [ aws_subnet.az_1private_subnet_3 ]
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+// module - 0 route table az -2
 resource "aws_route_table" "public-subnet-route-table-az-2" {
   vpc_id =   aws_vpc.vpc.id
+ 
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
@@ -205,7 +206,7 @@ resource "aws_route_table" "public-subnet-route-table-az-2" {
 
     }
 
-    depends_on = [ aws_internet_gateway.igw, aws_subnet.public_subnet_2]
+    depends_on = [ aws_internet_gateway.igw, aws_subnet.az_2public_subnet_1]
 }
 
 //module-1 route table
@@ -227,7 +228,7 @@ resource "aws_route_table" "front-end-route-table-az-2" {
 
     }
 
- depends_on = [ aws_internet_gateway.igw,aws_vpc.vpc, aws_nat_gateway.nat-2 , aws_subnet.private_subnet_4]
+ depends_on = [ aws_internet_gateway.igw,aws_vpc.vpc, aws_nat_gateway.nat-2 , aws_subnet.az_2private_subnet_1]
 }
 
 //module-2 route table
@@ -246,14 +247,27 @@ resource "aws_route_table" "backend-route-table-az-2" {
 
     }
 
-    depends_on = [ aws_internet_gateway.igw, aws_subnet.private_subnet_6]
+    depends_on = [ aws_internet_gateway.igw, aws_subnet.az_2private_subnet_2]
+}
+
+
+//module - 3 route table
+resource "aws_route_table" "database-route-table-az-2" {
+  vpc_id = aws_vpc.vpc.id
+ route {
+    cidr_block = "10.0.0.0/16"
+    gateway_id = "local"
+ }
+ tags = {
+   Name = "module-3-az-2-rt"
+ }
+  depends_on = [ aws_subnet.az_2private_subnet_3 ]
 }
 
 
 
 //create elastic ip for the NAT gateway in az-1
 resource "aws_eip" "eip" {
-  
 
   tags = {
     Name = "NAT-EIP-1"
@@ -270,7 +284,7 @@ resource "aws_eip" "eip2" {
 //create a NAT gateway in az-1
 resource "aws_nat_gateway" "nat-1" {
   allocation_id = aws_eip.eip.id
-  subnet_id     = aws_subnet.public_subnet_1.id
+  subnet_id     = aws_subnet.az_1public_subnet_1.id
 
   tags = {
     Name = "NAT-1"
@@ -278,13 +292,13 @@ resource "aws_nat_gateway" "nat-1" {
 
   # To ensure proper ordering, it is recommended to add an explicit dependency
   # on the Internet Gateway for the VPC.
-  depends_on = [aws_vpc.vpc,aws_internet_gateway.igw,aws_subnet.public_subnet_1]
+  depends_on = [aws_vpc.vpc,aws_internet_gateway.igw,aws_subnet.az_1public_subnet_1]
 }
 
 //create a NAT gateway in az-2
 resource "aws_nat_gateway" "nat-2" {
   allocation_id = aws_eip.eip2.id
-  subnet_id     = aws_subnet.public_subnet_2.id
+  subnet_id     = aws_subnet.az_2public_subnet_1.id
 
   tags = {
     Name = "NAT-2"
@@ -292,7 +306,7 @@ resource "aws_nat_gateway" "nat-2" {
 
   # To ensure proper ordering, it is recommended to add an explicit dependency
   # on the Internet Gateway for the VPC.
-  depends_on = [aws_vpc.vpc,aws_internet_gateway.igw,aws_subnet.public_subnet_2]
+  depends_on = [aws_vpc.vpc,aws_internet_gateway.igw,aws_subnet.az_2public_subnet_1]
 }
 
 
@@ -300,42 +314,55 @@ resource "aws_nat_gateway" "nat-2" {
 //route table association with the public subnet
 
 resource "aws_route_table_association" "module-0-rt-association-az-1" {
-    subnet_id      = aws_subnet.public_subnet_1.id
+    subnet_id      = aws_subnet.az_1public_subnet_1.id
     route_table_id = aws_route_table.public-subnet-route-table-az-1.id  
-    depends_on = [ aws_subnet.public_subnet_1,aws_route_table.public-subnet-route-table-az-1 ]
+    depends_on = [ aws_subnet.az_1public_subnet_1,aws_route_table.public-subnet-route-table-az-1 ]
   
 }
 resource "aws_route_table_association" "module-0-rt-association-az-2" {
-    subnet_id      = aws_subnet.public_subnet_2.id
+    subnet_id      = aws_subnet.az_2public_subnet_1.id
     route_table_id = aws_route_table.public-subnet-route-table-az-2.id
-    depends_on = [ aws_subnet.public_subnet_2,aws_route_table.public-subnet-route-table-az-2 ]
+    depends_on = [ aws_subnet.az_2public_subnet_1,aws_route_table.public-subnet-route-table-az-2 ]
   
 }
 
 
 
 resource "aws_route_table_association" "module-1-rt-association-az-1" {
-    subnet_id      = aws_subnet.private_subnet_1.id
+    subnet_id      = aws_subnet.az_1private_subnet_1.id
     route_table_id = aws_route_table.front-end-route-table-az-1.id  
-    depends_on = [ aws_subnet.private_subnet_1,aws_route_table.front-end-route-table-az-1]
+    depends_on = [ aws_subnet.az_1private_subnet_1,aws_route_table.front-end-route-table-az-1]
     
 }
 resource "aws_route_table_association" "module-1-rt-association-az-2" {
-    subnet_id      = aws_subnet.private_subnet_4.id
+    subnet_id      = aws_subnet.az_2private_subnet_1.id
     route_table_id = aws_route_table.front-end-route-table-az-2.id  
-    depends_on = [ aws_subnet.private_subnet_4,aws_route_table.front-end-route-table-az-2 ]
+    depends_on = [ aws_subnet.az_2private_subnet_1,aws_route_table.front-end-route-table-az-2 ]
 }
 
 
-
+//module -2 route table association with the private subnet 
 resource "aws_route_table_association" "module-2-rt-association-az-1" {
-    subnet_id      = aws_subnet.private_subnet_2.id
+    subnet_id      = aws_subnet.az_1private_subnet_2.id
     route_table_id = aws_route_table.backend-route-table-az-1.id  
-    depends_on = [ aws_subnet.private_subnet_2,aws_route_table.backend-route-table-az-1 ] 
+    depends_on = [ aws_subnet.az_1private_subnet_2,aws_route_table.backend-route-table-az-1 ] 
 }
 
 resource "aws_route_table_association" "module-2-rt-association-az-2" {
-    subnet_id      = aws_subnet.private_subnet_5.id
+    subnet_id      = aws_subnet.az_2private_subnet_2.id
     route_table_id = aws_route_table.backend-route-table-az-2.id  
-    depends_on = [ aws_subnet.private_subnet_5,aws_route_table.backend-route-table-az-2 ] 
+    depends_on = [ aws_subnet.az_1private_subnet_2,aws_route_table.backend-route-table-az-2 ] 
+}
+
+//module -3 route table association with the private subnet
+resource "aws_route_table_association" "module-3-rt-association-az-1" {
+    subnet_id      = aws_subnet.az_1private_subnet_3.id
+    route_table_id = aws_route_table.database-route-table-az-1.id  
+    depends_on = [ aws_subnet.az_1private_subnet_3,aws_route_table.database-route-table-az-1 ] 
+}
+
+resource "aws_route_table_association" "module-3-rt-association-az-2" {
+    subnet_id      = aws_subnet.az_2private_subnet_3.id
+    route_table_id = aws_route_table.database-route-table-az-2.id  
+    depends_on = [ aws_subnet.az_2private_subnet_3,aws_route_table.database-route-table-az-2 ] 
 }
