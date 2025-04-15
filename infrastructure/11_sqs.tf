@@ -4,7 +4,7 @@ resource "aws_sqs_queue" "output_status_update_queue" {
     max_message_size          = 2048
   message_retention_seconds = 86400
   receive_wait_time_seconds = 10
-  
+
 }
 
 
@@ -35,4 +35,6 @@ data "aws_iam_policy_document" "sqs_s3_policy" {
 resource "aws_sqs_queue_policy" "output_processing_policy" {
   queue_url = aws_sqs_queue.output_status_update_queue.id
   policy = data.aws_iam_policy_document.sqs_s3_policy.json
+
+  depends_on = [ aws_sqs_queue.output_status_update_queue  ]
 }
