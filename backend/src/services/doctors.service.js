@@ -277,7 +277,7 @@ const returnRecentPatients = async (req, res) => {
         //now arrange the patients in descending order of their createdAt date.
 
         return res.status(200).json(    
-            new ApiResponse(true,"Recent patients fetched successfully",patients)
+            new ApiResponse(true,patients,"Recent patients fetched successfully")
         )
 
     

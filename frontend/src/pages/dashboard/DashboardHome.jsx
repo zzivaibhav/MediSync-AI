@@ -78,18 +78,51 @@ const StatsCard = ({ title, value, icon, change, color, loading }) => {
   );
 };
 
-const RecentTranscripts = ({ loading }) => {
+const RecentTranscripts = ({ loading: initialLoading }) => {
+  const [transcripts, setTranscripts] = useState([]);
+  const [loading, setLoading] = useState(initialLoading);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchTranscripts = async () => {
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_URL}/doctor-api/get-recent-patients`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
+        );
+        setTranscripts(response.data.data || []);
+        console.log('Fetched recent transcripts:', transcripts );
+      } catch (error) {
+        console.error('Error fetching recent transcripts:', error);
+        setError('Failed to load recent transcripts');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTranscripts();
+  }, []);
+
   if (loading) {
     return <TableSkeleton rows={5} columns={4} />;
   }
 
-  const transcripts = [
-    { id: 1, patientName: 'John Doe', recordingName: 'Annual Checkup', date: '2023-05-15', status: 'Completed' },
-    { id: 2, patientName: 'Jane Smith', recordingName: 'Follow-up Consultation', date: '2023-05-16', status: 'Processing' },
-    { id: 3, patientName: 'Robert Johnson', recordingName: 'Specialist Referral', date: '2023-05-17', status: 'Completed' },
-    { id: 4, patientName: 'Emily Davis', recordingName: 'Initial Consultation', date: '2023-05-18', status: 'Failed' },
-    { id: 5, patientName: 'Michael Brown', recordingName: 'Medication Review', date: '2023-05-19', status: 'Completed' },
-  ];
+  if (error) {
+    return (
+      <Card sx={{ bgcolor: '#1f2937', borderRadius: 2, border: '1px solid #374151' }}>
+        <CardContent>
+          <Typography color="error" align="center">
+            {error}
+          </Typography>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card sx={{ bgcolor: '#1f2937', borderRadius: 2, border: '1px solid #374151' }}>
@@ -132,13 +165,13 @@ const RecentTranscripts = ({ loading }) => {
               {transcripts.map((transcript) => (
                 <tr key={transcript.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                    {transcript.patientName}
+                    {transcript.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {transcript.recordingName}
+                    {transcript.recordingName || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {transcript.date}
+                    {new Date(transcript.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Chip 
@@ -170,6 +203,13 @@ const RecentTranscripts = ({ loading }) => {
                   </td>
                 </tr>
               ))}
+              {transcripts.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-4 text-center text-gray-400">
+                    No recent transcripts found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </Box>
@@ -263,7 +303,7 @@ const DashboardHome = () => {
             }
           }
         );
-        console.log('Fetched patients:', response.data);
+        console.log('Fetched patients:', response.data.data);
         setPatientCount(response.data.data?.length || 0);
       } catch (error) {
         console.error('Error fetching patient count:', error);
