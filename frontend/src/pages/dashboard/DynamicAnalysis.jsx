@@ -1,92 +1,255 @@
-import React, { useState } from 'react';
-import { Box, Typography, Paper, Fade, Grid, Modal, IconButton, Backdrop } from '@mui/material';
-import { Description, Assessment, Close, HealthAndSafety } from '@mui/icons-material';
+import React, { useState, useRef } from 'react';
+import { Box, Typography, Paper, Fade, Grid, Modal, IconButton, Backdrop, Button } from '@mui/material';
+import { Description, Assessment, Close, HealthAndSafety, PictureAsPdf } from '@mui/icons-material';
+import { Document, Page, Text, View, StyleSheet, PDFViewer, Font } from '@react-pdf/renderer';
 
-const DetailModal = ({ open, onClose, title, content }) => (
-  <Modal
-    open={open}
-    onClose={onClose}
-    closeAfterTransition
-    slots={{ backdrop: Backdrop }}
-    slotProps={{
-      backdrop: {
-        timeout: 500,
-        sx: {
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          backdropFilter: 'blur(8px)',
-        }
-      }
-    }}
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
-  >
-    <Fade in={open}>
-      <Box sx={{
-        width: '90vw',
-        maxWidth: 800,
-        maxHeight: '90vh',
-        bgcolor: '#1a1a1a',
-        borderRadius: 2,
-        boxShadow: 24,
-        overflow: 'hidden',
-        position: 'relative',
-      }}>
-        <Box sx={{
-          p: 3,
-          background: 'linear-gradient(45deg, #1e3a8a 0%, #1e40af 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <HealthAndSafety sx={{ color: '#fff' }} />
-            <Typography variant="h6" sx={{ color: '#fff', fontWeight: 500 }}>
-              {title}
-            </Typography>
-          </Box>
-          <IconButton onClick={onClose} sx={{ color: '#fff' }}>
-            <Close />
-          </IconButton>
-        </Box>
-        <Box sx={{
-          p: 3,
-          maxHeight: 'calc(90vh - 100px)',
-          overflow: 'auto',
-          '&::-webkit-scrollbar': {
-            width: '8px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#4b5563',
-            borderRadius: '4px',
-          },
-        }}>
-          {Array.isArray(content) ? content.map((item, idx) => (
-            <Typography
-              key={idx}
-              sx={{
-                color: '#e2e8f0',
-                mb: 2,
-                p: 2,
-                borderRadius: 1,
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                borderLeft: '3px solid #3b82f6',
-                fontSize: '0.95rem',
-                fontFamily: '"Roboto Mono", monospace',
-              }}
-            >
-              {item}
-            </Typography>
-          )) : (
-            <Typography sx={{ color: '#e2e8f0' }}>{content}</Typography>
-          )}
-        </Box>
-      </Box>
-    </Fade>
-  </Modal>
+// Register fonts
+Font.register({
+  family: 'Helvetica',
+  fonts: [
+    { src: 'https://fonts.gstatic.com/s/helveticaneue/v70/1Ptsg8zYS_SKggPNyCg4QIFqPfE.ttf', fontWeight: 'normal' },
+    { src: 'https://fonts.gstatic.com/s/helveticaneue/v70/1Ptsg8zYS_SKggPNyCg4TYFqPfE.ttf', fontWeight: 'bold' }
+  ]
+});
+
+// PDF styles
+const styles = StyleSheet.create({
+  page: {
+    padding: 40,
+    fontFamily: 'Helvetica'
+  },
+  header: {
+    marginBottom: 30,
+    textAlign: 'center',
+    borderBottom: '1 solid #333'
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 10,
+    fontWeight: 'bold'
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#444',
+    marginBottom: 20
+  },
+  metadata: {
+    fontSize: 10,
+    color: '#666',
+    marginBottom: 20
+  },
+  section: {
+    marginBottom: 20,
+    breakInside: 'avoid'
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1a365d',
+    paddingBottom: 8,
+    borderBottom: '1 solid #ccc',
+    marginBottom: 10
+  },
+  content: {
+    fontSize: 11,
+    lineHeight: 1.6,
+    marginBottom: 8,
+    paddingLeft: 10,
+    borderLeft: '2 solid #2563eb'
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: 10,
+    color: '#666',
+    borderTop: '1 solid #ccc',
+    paddingTop: 10
+  }
+});
+
+const MedicalPDF = ({ sections }) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.header}>
+        <Text style={styles.title}>MediSync AI</Text>
+        <Text style={styles.subtitle}>Clinical Documentation Summary</Text>
+        <Text style={styles.metadata}>
+          Generated on: {new Date().toLocaleDateString()}{'\n'}
+          Record ID: MS-{Math.random().toString(36).substr(2, 9).toUpperCase()}
+        </Text>
+      </View>
+
+      {sections.map((section, idx) => {
+        const title = section.SectionName.split('_')
+          .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+          .join(' ');
+        const content = section.Summary.map(item => 
+          item.SummarizedSegment || item.content || item
+        );
+
+        return (
+          <View key={idx} style={styles.section}>
+            <Text style={styles.sectionTitle}>{title}</Text>
+            {content.map((item, i) => (
+              <Text key={i} style={styles.content}>{item}</Text>
+            ))}
+          </View>
+        );
+      })}
+
+      <Text style={styles.footer}>
+        Confidential Medical Record - For Professional Use Only{'\n'}
+        Generated by MediSync AI System
+      </Text>
+    </Page>
+  </Document>
 );
+
+const DetailModal = ({ open, onClose, title, content }) => {
+  const handlePrint = () => {
+    const printContent = `
+      <html>
+        <head>
+          <title>Medical Record - ${title}</title>
+          <style>
+            body { font-family: monospace; padding: 40px; }
+            .header { margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+            .title { font-size: 24px; margin-bottom: 10px; }
+            .metadata { font-size: 12px; color: #666; }
+            .content { margin-top: 20px; }
+            .item { margin-bottom: 15px; padding-left: 15px; border-left: 3px solid #ccc; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="title">Medical Record: ${title}</div>
+            <div class="metadata">
+              Generated on: ${new Date().toLocaleDateString()}<br>
+              Record ID: ${Math.random().toString(36).substr(2, 9).toUpperCase()}
+            </div>
+          </div>
+          <div class="content">
+            ${Array.isArray(content) ? 
+              content.map(item => `<div class="item">${item}</div>`).join('') : 
+              `<div class="item">${content}</div>`
+            }
+          </div>
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{
+        backdrop: {
+          timeout: 500,
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(8px)',
+          }
+        }
+      }}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Fade in={open}>
+        <Box sx={{
+          width: '90vw',
+          maxWidth: 800,
+          maxHeight: '90vh',
+          bgcolor: '#0f172a', // Deep navy background
+          borderRadius: 2,
+          boxShadow: '0 8px 32px rgba(56, 189, 248, 0.1)',
+          overflow: 'hidden',
+          position: 'relative',
+        }}>
+          <Box sx={{
+            p: 3,
+            background: 'linear-gradient(45deg, #0c4a6e 0%, #0369a1 100%)', // Deep blue gradient
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <HealthAndSafety sx={{ color: '#fff' }} />
+              <Typography variant="h6" sx={{ 
+                color: '#fff', 
+                fontWeight: 500,
+                fontFamily: '"IBM Plex Mono", monospace'
+              }}>
+                {title}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="contained"
+                startIcon={<PictureAsPdf />}
+                onClick={handlePrint}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' },
+                }}
+              >
+                Export & Print
+              </Button>
+              <IconButton onClick={onClose} sx={{ color: '#fff' }}>
+                <Close />
+              </IconButton>
+            </Box>
+          </Box>
+          <Box sx={{
+            p: 3,
+            maxHeight: 'calc(90vh - 100px)',
+            overflow: 'auto',
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: '#0369a1',
+              borderRadius: '4px',
+            },
+          }}>
+            {Array.isArray(content) ? content.map((item, idx) => (
+              <Typography
+                key={idx}
+                sx={{
+                  color: '#f1f5f9',
+                  mb: 2,
+                  p: 2,
+                  borderRadius: 1,
+                  backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                  borderLeft: '3px solid #0ea5e9',
+                  fontSize: '0.95rem',
+                  fontFamily: '"Roboto Mono", monospace',
+                }}
+              >
+                {item}
+              </Typography>
+            )) : (
+              <Typography sx={{ color: '#f1f5f9' }}>{content}</Typography>
+            )}
+          </Box>
+        </Box>
+      </Fade>
+    </Modal>
+  );
+};
 
 const SummarySection = ({ title, content, index }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -106,36 +269,30 @@ const SummarySection = ({ title, content, index }) => {
               height: 280,
               borderRadius: '12px',
               cursor: 'pointer',
-              background: '#ffffff',
+              background: '#0f172a',
               display: 'flex',
               flexDirection: 'column',
               position: 'relative',
               overflow: 'hidden',
+              border: '1px solid',
+              borderColor: 'rgba(2, 132, 199, 0.2)',
               '@keyframes pulse': {
                 '0%': {
-                  boxShadow: '0 0 0 0 rgba(33, 150, 243, 0.4)'
+                  boxShadow: '0 0 0 0 rgba(2, 132, 199, 0.2)'
                 },
                 '70%': {
-                  boxShadow: '0 0 0 10px rgba(33, 150, 243, 0)'
+                  boxShadow: '0 0 0 10px rgba(2, 132, 199, 0)'
                 },
                 '100%': {
-                  boxShadow: '0 0 0 0 rgba(33, 150, 243, 0)'
+                  boxShadow: '0 0 0 0 rgba(2, 132, 199, 0)'
                 }
               },
               '@keyframes borderGlow': {
-                '0%': {
-                  borderColor: 'primary.light'
-                },
-                '50%': {
-                  borderColor: 'primary.main'
-                },
-                '100%': {
-                  borderColor: 'primary.light'
-                }
+                '0%': { borderColor: 'rgba(2, 132, 199, 0.2)' },
+                '50%': { borderColor: 'rgba(2, 132, 199, 0.4)' },
+                '100%': { borderColor: 'rgba(2, 132, 199, 0.2)' }
               },
               animation: 'pulse 2s infinite',
-              border: '1px solid',
-              borderColor: 'primary.light',
               '&::before': {
                 content: '""',
                 position: 'absolute',
@@ -143,45 +300,36 @@ const SummarySection = ({ title, content, index }) => {
                 left: 0,
                 width: '100%',
                 height: '4px',
-                background: (theme) => `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+                background: 'linear-gradient(90deg, #0c4a6e, #0ea5e9)',
                 opacity: isHovered ? 1 : 0.7,
-                transition: 'all 0.3s ease'
               },
               '&:hover': {
                 transform: 'translateY(-8px) scale(1.02)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: '0 12px 24px rgba(33, 150, 243, 0.2)',
                 animation: 'borderGlow 1.5s infinite',
-                '& .icon-container': {
-                  transform: 'scale(1.1) rotate(10deg)',
-                }
-              },
-              '& .icon-container': {
-                transition: 'transform 0.3s ease',
+                boxShadow: '0 12px 24px rgba(2, 132, 199, 0.15)',
+                background: '#1e293b',
               }
             }}
           >
-            {/* Card Header */}
             <Box sx={{ 
               display: 'flex', 
               alignItems: 'center', 
               mb: 2,
               pb: 2,
-              borderBottom: '1px solid #e2e8f0'
+              borderBottom: '1px solid rgba(124, 77, 255, 0.1)'
             }}>
               <Box className="icon-container">
                 <Assessment sx={{ 
-                  color: 'primary.main',
+                  color: '#9d4edd',
                   fontSize: 28,
                   mr: 1.5,
-                  filter: isHovered ? 'drop-shadow(0 0 8px rgba(33, 150, 243, 0.5))' : 'none',
-                  transition: 'filter 0.3s ease'
+                  filter: isHovered ? 'drop-shadow(0 0 8px rgba(124, 77, 255, 0.5))' : 'none',
                 }} />
               </Box>
               <Typography 
                 variant="h6" 
                 sx={{ 
-                  color: 'text.primary',
+                  color: '#e9ecef',
                   fontWeight: 600,
                   fontSize: '1.1rem',
                 }}
@@ -190,10 +338,9 @@ const SummarySection = ({ title, content, index }) => {
               </Typography>
             </Box>
 
-            {/* Card Content */}
             <Box className="content-container" sx={{ 
               flex: 1,
-              backgroundColor: '#fafafa',
+              backgroundColor: '#0f172a',
               borderRadius: '8px',
               p: 2,
             }}>
@@ -202,18 +349,18 @@ const SummarySection = ({ title, content, index }) => {
                   <Typography 
                     key={idx} 
                     sx={{ 
-                      color: 'text.secondary',
+                      color: '#e2e8f0',
                       py: 1,
                       px: 1.5,
                       mb: 1,
                       borderRadius: '4px',
                       fontSize: '0.9rem',
-                      backgroundColor: 'background.paper',
+                      backgroundColor: '#1e293b',
                       borderLeft: '3px solid',
-                      borderColor: 'primary.light',
+                      borderColor: 'rgba(2, 132, 199, 0.4)',
                       '&:hover': {
-                        backgroundColor: '#f8fafc',
-                        borderColor: 'primary.main',
+                        backgroundColor: '#334155',
+                        borderColor: '#0ea5e9',
                       }
                     }}
                   >
@@ -221,7 +368,7 @@ const SummarySection = ({ title, content, index }) => {
                   </Typography>
                 ))
               ) : (
-                <Typography sx={{ color: 'text.secondary' }}>
+                <Typography sx={{ color: '#e2e8f0' }}>
                   {content}
                 </Typography>
               )}
@@ -232,11 +379,9 @@ const SummarySection = ({ title, content, index }) => {
                 mt: 1, 
                 display: 'block', 
                 textAlign: 'center',
-                color: 'primary.main',
+                color: '#9d4edd',
                 fontWeight: 500,
                 opacity: isHovered ? 1 : 0.7,
-                transform: isHovered ? 'scale(1.05)' : 'scale(1)',
-                transition: 'all 0.3s ease'
               }}
             >
               Click to view full details
@@ -244,17 +389,98 @@ const SummarySection = ({ title, content, index }) => {
           </Paper>
         </Fade>
       </Grid>
-      <DetailModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={title}
-        content={content}
-      />
+      <DetailModal {...{ open: modalOpen, onClose: () => setModalOpen(false), title, content }} />
     </>
   );
 };
 
+const PrintableReport = ({ sections }) => {
+  return (
+    <div style={{ display: 'none' }}>
+      <div id="printable-content" style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px', borderBottom: '2px solid #333', paddingBottom: '20px' }}>
+          <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>MediSync AI</h1>
+          <h2 style={{ fontSize: '20px', color: '#444' }}>Clinical Documentation Summary</h2>
+          <div style={{ fontSize: '12px', color: '#666', marginTop: '20px' }}>
+            Generated on: {new Date().toLocaleDateString()}<br />
+            Record ID: MS-{Math.random().toString(36).substr(2, 9).toUpperCase()}<br />
+            Total Sections: {sections.length}
+          </div>
+        </div>
+
+        {sections.map((section, idx) => {
+          const title = section.SectionName.split('_')
+            .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+            .join(' ');
+          const content = section.Summary.map(item => 
+            item.SummarizedSegment || item.content || item
+          );
+
+          return (
+            <div key={idx} style={{ marginBottom: '30px', pageBreakInside: 'avoid' }}>
+              <h3 style={{ 
+                fontSize: '16px', 
+                color: '#1a365d', 
+                borderBottom: '1px solid #ccc',
+                paddingBottom: '8px',
+                marginBottom: '15px' 
+              }}>
+                {title}
+              </h3>
+              <div>
+                {content.map((item, i) => (
+                  <div key={i} style={{
+                    marginBottom: '12px',
+                    paddingLeft: '15px',
+                    borderLeft: '3px solid #2563eb',
+                    background: '#f8fafc',
+                    padding: '8px 12px',
+                    fontSize: '14px',
+                    lineHeight: 1.6
+                  }}>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+
+        <div style={{ 
+          marginTop: '40px',
+          textAlign: 'center',
+          fontSize: '12px',
+          color: '#666',
+          borderTop: '1px solid #ccc',
+          paddingTop: '20px'
+        }}>
+          Confidential Medical Record - For Professional Use Only<br />
+          Generated by MediSync AI System
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DynamicAnalysis = ({ summary }) => {
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+
+  const handlePrintFullReport = () => {
+    setIsPrinting(true);
+    setTimeout(() => {
+      const content = document.getElementById('printable-content');
+      const printWindow = window.open('', '', 'height=600,width=800');
+      printWindow.document.write('<html><head><title>Medical Summary Report</title>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write(content.innerHTML);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
+      setIsPrinting(false);
+    }, 100);
+  };
+
   if (!summary?.ClinicalDocumentation?.Sections) {
     return <Typography>No data available</Typography>;
   }
@@ -280,7 +506,18 @@ const DynamicAnalysis = ({ summary }) => {
   }, {});
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
+    <Box sx={{ 
+      p: { xs: 2, md: 4 },
+      backgroundColor: '#13131f',
+      minHeight: '100vh'
+    }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'flex-end', 
+        mb: 3 
+      }}>
+        
+      </Box>
       <Grid container spacing={3}>
         {Object.entries(groupedSections).map(([title, content], idx) => (
           <SummarySection
@@ -291,6 +528,36 @@ const DynamicAnalysis = ({ summary }) => {
           />
         ))}
       </Grid>
+      {isPrinting && <PrintableReport sections={summary.ClinicalDocumentation.Sections} />}
+      <Modal
+        open={showPdfPreview}
+        onClose={() => setShowPdfPreview(false)}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+          }
+        }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Box sx={{
+          width: '95vw',
+          height: '95vh',
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 2,
+          borderRadius: 2
+        }}>
+          <PDFViewer width="100%" height="100%">
+            <MedicalPDF sections={summary.ClinicalDocumentation.Sections} />
+          </PDFViewer>
+        </Box>
+      </Modal>
     </Box>
   );
 };
