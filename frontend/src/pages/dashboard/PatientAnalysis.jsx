@@ -27,8 +27,8 @@ const PatientAnalysis = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto p-4">
+    <div className="min-h-screen">
+      <div className="container mx-auto">
         <DynamicAnalysis summary={summaryData} />
       </div>
     </div>
