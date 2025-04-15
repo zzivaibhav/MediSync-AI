@@ -22,7 +22,8 @@ if ! command -v docker &> /dev/null; then
     sudo systemctl enable docker
     
     # Add current user to docker group to avoid using sudo
-    sudo usermod -aG docker $USER
+    sudo usermod -aG docker $(whoami)
+
     echo "Docker installed successfully!"
 else
     echo "Docker is already installed."
