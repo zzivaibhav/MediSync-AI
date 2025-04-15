@@ -11,8 +11,12 @@ import AddPatient from './pages/dashboard/AddPatient'
 function App() {
   const isAuthenticated = () => {
     const token = localStorage.getItem('accessToken');
+    if (!token) {
+      return false;
+    }
     // Add additional checks if needed (e.g., token expiration)
     return true; // Replace with actual authentication check
+
   };
 
   // Force a re-render when localStorage changes
@@ -51,7 +55,7 @@ function App() {
           element={isAuthenticated() ? <Dashboard><AddPatient /></Dashboard> : <Navigate to="/login" />} 
         />
         
-        <Route path="/" element={isAuthenticated() ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+        <Route path="/" element={<Login/>} />
       </Routes>
     </Router>
   )
