@@ -1,7 +1,7 @@
 import Patient from '../model/patient.model.js';
 import {createDirectory, deleteDirectory,uploadFile  } from './s3.service.js'
 import fs from 'fs';
-//import { logInfo } from '../utils/CustomLogger.js';
+import { logError, logInfo } from '../utils/CustomLogger.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 const createPatient = async (req, res) => {
     try {
@@ -32,7 +32,7 @@ const createPatient = async (req, res) => {
                 phoneNumber,
                 doctorID: req.user.sub
             });
-          //   logInfo("Successfully created Directory on S3 for "+ email)
+            logInfo("Successfully created Directory on S3 for "+ email)
             
             return res.status(201).json({
                 success: true,
@@ -101,14 +101,21 @@ const deletePatient = async (req, res) => {
         });
     }
      
-    await deleteDirectory( patient.email);
+   const decision =  await deleteDirectory( patient.email);
+   if(decision){
     await patient.destroy();
-    
+    logInfo("Successfully deleted patient with ID: "+ id)
     return res.status(200).json({
         success: true,
         message: "Patient deleted and associated data removed successfully"
     });
+   }
 
+   logError("Failed to delete patient with ID: "+ id)
+   res.status(500).json({
+    success: false,
+    message: "Failed to delete patient and associated data"
+   });
 
  } catch (error) {
     console.error('Error deleting patient:', error);

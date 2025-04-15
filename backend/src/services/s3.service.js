@@ -1,6 +1,7 @@
 import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 import { s3Client } from "../utils/s3client.js";
+import { logError, logInfo } from "../utils/CustomLogger.js";
 dotenv.config();
 
 const createDirectory = async (  email) => {
@@ -53,11 +54,12 @@ const createDirectory = async (  email) => {
 const deleteDirectory = async (  email) => {
     try {
         if (  !email) {
-            console.error("Name and email are required for directory deletion");
+            logError("Email is required to delete directory");
             return false;
         }
         
-        console.log(`Deleting S3 directories for   (${email})`);
+        logInfo(`Deleting S3 directories for   (${email})`);
+        
         const folderName = `${email}/`;
         // Ensure folderName has trailing slash for S3
         const baseFolder = folderName.endsWith('/') ? folderName : `${folderName}/`;
@@ -71,8 +73,8 @@ const deleteDirectory = async (  email) => {
         await Promise.all(deleteBucketPromises);
         return true;
     } catch (error) {
-        console.error("Error deleting folders in S3:", error);
-        return false;
+        logError("Error deleting folders in S3:", error);
+         return false;
     }
 }
 
