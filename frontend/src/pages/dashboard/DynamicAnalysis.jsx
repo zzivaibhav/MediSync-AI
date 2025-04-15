@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Paper, Fade, Grid, Modal, IconButton } from '@mui/material';
+import { Box, Typography, Paper, Fade, Grid, Modal, IconButton, Backdrop } from '@mui/material';
 import { Description, Assessment, Close, HealthAndSafety } from '@mui/icons-material';
 
 const DetailModal = ({ open, onClose, title, content }) => (
@@ -7,6 +7,16 @@ const DetailModal = ({ open, onClose, title, content }) => (
     open={open}
     onClose={onClose}
     closeAfterTransition
+    slots={{ backdrop: Backdrop }}
+    slotProps={{
+      backdrop: {
+        timeout: 500,
+        sx: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(8px)',
+        }
+      }
+    }}
     sx={{
       display: 'flex',
       alignItems: 'center',
@@ -80,6 +90,7 @@ const DetailModal = ({ open, onClose, title, content }) => (
 
 const SummarySection = ({ title, content, index }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <>
@@ -88,6 +99,8 @@ const SummarySection = ({ title, content, index }) => {
           <Paper
             elevation={3}
             onClick={() => setModalOpen(true)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             sx={{
               p: 3,
               height: 280,
@@ -98,6 +111,31 @@ const SummarySection = ({ title, content, index }) => {
               flexDirection: 'column',
               position: 'relative',
               overflow: 'hidden',
+              '@keyframes pulse': {
+                '0%': {
+                  boxShadow: '0 0 0 0 rgba(33, 150, 243, 0.4)'
+                },
+                '70%': {
+                  boxShadow: '0 0 0 10px rgba(33, 150, 243, 0)'
+                },
+                '100%': {
+                  boxShadow: '0 0 0 0 rgba(33, 150, 243, 0)'
+                }
+              },
+              '@keyframes borderGlow': {
+                '0%': {
+                  borderColor: 'primary.light'
+                },
+                '50%': {
+                  borderColor: 'primary.main'
+                },
+                '100%': {
+                  borderColor: 'primary.light'
+                }
+              },
+              animation: 'pulse 2s infinite',
+              border: '1px solid',
+              borderColor: 'primary.light',
               '&::before': {
                 content: '""',
                 position: 'absolute',
@@ -106,25 +144,20 @@ const SummarySection = ({ title, content, index }) => {
                 width: '100%',
                 height: '4px',
                 background: (theme) => `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+                opacity: isHovered ? 1 : 0.7,
+                transition: 'all 0.3s ease'
               },
               '&:hover': {
-                transform: 'translateY(-8px)',
+                transform: 'translateY(-8px) scale(1.02)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: '0 12px 24px rgba(0,0,0,0.1)',
-              },
-              '& .content-container': {
-                height: 160,
-                overflow: 'hidden',
-                position: 'relative',
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: '40px',
-                  background: 'linear-gradient(transparent, #fafafa)',
+                boxShadow: '0 12px 24px rgba(33, 150, 243, 0.2)',
+                animation: 'borderGlow 1.5s infinite',
+                '& .icon-container': {
+                  transform: 'scale(1.1) rotate(10deg)',
                 }
+              },
+              '& .icon-container': {
+                transition: 'transform 0.3s ease',
               }
             }}
           >
@@ -136,11 +169,15 @@ const SummarySection = ({ title, content, index }) => {
               pb: 2,
               borderBottom: '1px solid #e2e8f0'
             }}>
-              <Assessment sx={{ 
-                color: 'primary.main',
-                fontSize: 28,
-                mr: 1.5 
-              }} />
+              <Box className="icon-container">
+                <Assessment sx={{ 
+                  color: 'primary.main',
+                  fontSize: 28,
+                  mr: 1.5,
+                  filter: isHovered ? 'drop-shadow(0 0 8px rgba(33, 150, 243, 0.5))' : 'none',
+                  transition: 'filter 0.3s ease'
+                }} />
+              </Box>
               <Typography 
                 variant="h6" 
                 sx={{ 
@@ -196,7 +233,10 @@ const SummarySection = ({ title, content, index }) => {
                 display: 'block', 
                 textAlign: 'center',
                 color: 'primary.main',
-                fontWeight: 500 
+                fontWeight: 500,
+                opacity: isHovered ? 1 : 0.7,
+                transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                transition: 'all 0.3s ease'
               }}
             >
               Click to view full details
