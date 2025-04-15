@@ -1,7 +1,7 @@
 import Patient from '../model/patient.model.js';
 import {createDirectory, deleteDirectory,uploadFile  } from './s3.service.js'
 import fs from 'fs';
-import { logInfo } from '../utils/CustomLogger.js';
+//import { logInfo } from '../utils/CustomLogger.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 const createPatient = async (req, res) => {
     try {
@@ -32,7 +32,7 @@ const createPatient = async (req, res) => {
                 phoneNumber,
                 doctorID: req.user.sub
             });
-             logInfo("Successfully created Directory on S3 for "+ email)
+          //   logInfo("Successfully created Directory on S3 for "+ email)
             
             return res.status(201).json({
                 success: true,
