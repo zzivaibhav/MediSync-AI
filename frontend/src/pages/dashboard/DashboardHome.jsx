@@ -148,7 +148,7 @@ const RecentTranscripts = ({ loading: initialLoading }) => {
                   Patient
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Recording
+                  Purpose of visit
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                   Date
@@ -168,7 +168,7 @@ const RecentTranscripts = ({ loading: initialLoading }) => {
                     {transcript.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {transcript.recordingName || 'N/A'}
+                    {transcript.purpose || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                     {new Date(transcript.createdAt).toLocaleDateString()}

@@ -46,6 +46,10 @@ import {db} from '../db/db.js';
         model: 'Doctors',
         key: 'cognitoReference'
       }
+    },
+    purpose:{
+      type: DataTypes.STRING,
+      allowNull: false
     }
   }, {
     tableName: 'Patients',

@@ -11,7 +11,14 @@ const createPatient = async (req, res) => {
      logInfo("Incoming request body:", req.body);
       
          // Extract fields from req.body
-        const {name, email, DOB, phoneNumber} = req.body;
+        const {name, email, DOB, phoneNumber,purpose} = req.body;
+
+       if(!name || !email || !DOB || !phoneNumber || !purpose){
+            return res.status(400).json(
+                new ApiResponse(false,null,"Name, email, DOB, phoneNumber and purpose are required")
+            )
+        }
+        else{
 
        
         if (await Patient.findOne({ where: { email : email } })) {
@@ -32,6 +39,7 @@ const createPatient = async (req, res) => {
                 email,
                 DOB,
                 phoneNumber,
+                purpose,
                 doctorID: req.user.sub
             });
             if(patientData){
@@ -55,7 +63,7 @@ const createPatient = async (req, res) => {
             new ApiResponse(false,null,"Failed to create directory")
          )
          
-       
+        }
     } catch (error) {
         console.error('Error creating patient:', error);
         return res.status(500).json({
