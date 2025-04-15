@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import multer from "multer";
 import { s3Client } from "../src/utils/s3client.js";
 import authenticatJWT from "./middlewares/authenticate.js";
-import pino from "pino-http"
 dotenv.config();
 
 const app = express();
@@ -32,8 +31,7 @@ app.use(
 app.use(express.static("public"));
 
 
-//instanticate the logger
-app.use(pino)
+ 
 // Multer configuration for memory storage
 const storage = multer.memoryStorage();
 const upload = multer({ 
