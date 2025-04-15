@@ -7,6 +7,7 @@ import Dashboard from './components/layout/Dashboard'
 import DashboardHome from './pages/dashboard/DashboardHome'
 import Patients from './pages/dashboard/Patients'
 import AddPatient from './pages/dashboard/AddPatient'
+import PatientAnalysis from './pages/dashboard/PatientAnalysis'
 
 function App() {
   const isAuthenticated = () => {
@@ -53,6 +54,10 @@ function App() {
         <Route 
           path="/dashboard/add-patient" 
           element={isAuthenticated() ? <Dashboard><AddPatient /></Dashboard> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/dashboard/analysis" 
+          element={isAuthenticated() ? <Dashboard><PatientAnalysis /></Dashboard> : <Navigate to="/login" />} 
         />
         
         <Route path="/" element={<Login/>} />

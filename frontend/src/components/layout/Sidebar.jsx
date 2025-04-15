@@ -19,7 +19,7 @@ const Sidebar = ({ onClose = () => {} }) => {
   const navItems = [
     { name: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
     { name: 'Patients', icon: <PeopleIcon />, path: '/dashboard/patients' },
-    
+    { name: 'Analysis', icon: <AssessmentIcon />, path: '/dashboard/analysis' },
     { name: 'Settings', icon: <SettingsIcon />, path: '/dashboard/settings' },
   ];
 

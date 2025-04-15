@@ -1,0 +1,435 @@
+{
+  "ClinicalDocumentation": {
+    "Sections": [
+      {
+        "SectionName": "CHIEF_COMPLAINT",
+        "Summary": [
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "de2c9186-a998-4a9b-8097-89f02a3b21fd" },
+              { "SegmentId": "0e0e3f67-e27f-4d98-9413-c0056026143b" },
+              { "SegmentId": "cf462b36-175c-40e9-b15b-b8403fea75e3" },
+              { "SegmentId": "656f94da-3c02-403e-a322-bdfd7c4dedd4" }
+            ],
+            "SummarizedSegment": "Excessive fatigue, polyphagia, and polydipsia."
+          }
+        ]
+      },
+      {
+        "SectionName": "HISTORY_OF_PRESENT_ILLNESS",
+        "Summary": [
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "de2c9186-a998-4a9b-8097-89f02a3b21fd" },
+              { "SegmentId": "656f94da-3c02-403e-a322-bdfd7c4dedd4" }
+            ],
+            "SummarizedSegment": "The patient presents with complaints of excessive fatigue and tiredness despite getting adequate sleep of 8-9 hours per night."
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "0e0e3f67-e27f-4d98-9413-c0056026143b" },
+              { "SegmentId": "cf462b36-175c-40e9-b15b-b8403fea75e3" }
+            ],
+            "SummarizedSegment": "They report constant feelings of hunger and thirst despite eating properly and drinking enough water."
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "7f538223-b359-4a3e-b809-6a3800babfab" },
+              { "SegmentId": "77ae1675-1623-4a06-8fe7-1044e3d6cc8f" },
+              { "SegmentId": "37242348-3cbf-4152-9543-c4c74148b5d7" },
+              { "SegmentId": "2a598ad6-32c3-4650-8e9e-3fba90215555" }
+            ],
+            "SummarizedSegment": "The patient has noticed increased urinary frequency, attributing it initially to increased fluid intake."
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "b53421da-cb84-41a1-9e10-b66ddb8cd634" },
+              { "SegmentId": "0744625a-097d-482a-951d-fa1e5aeb2aed" },
+              { "SegmentId": "253a3a40-9c2e-46c5-a17a-78b528337525" },
+              { "SegmentId": "8885ce71-af9a-411c-9663-74d4f478ad06" },
+              { "SegmentId": "37a1439c-fff6-4b3c-b0b4-9791d9fa4236" }
+            ],
+            "SummarizedSegment": "Visual changes with intermittent blurred vision, more pronounced upon waking up and throughout the day, have also been observed."
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "14e5eb79-7ebf-4860-90fa-18b261637e69" },
+              { "SegmentId": "9f4f72bf-68f9-4660-b2dc-2456b6ceae3d" }
+            ],
+            "SummarizedSegment": "The patient has unintentionally lost around 10 lbs in weight despite increased appetite and food intake."
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "6b585965-54e4-4c35-b98c-626afb90f825" },
+              { "SegmentId": "e3666196-2981-4088-8b37-71c31028ed92" },
+              { "SegmentId": "8156359b-9b4d-45c2-8f9e-3504f4432627" }
+            ],
+            "SummarizedSegment": "They have experienced occasional tingling or numbness sensations, particularly in the feet, described as a \"pins and needles\" feeling."
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "a9b578e6-629e-4b7d-9eff-509ff68a34ce" },
+              { "SegmentId": "b29a6667-07f9-438a-836c-d7830d1c759e" }
+            ],
+            "SummarizedSegment": "Some bruises have been noted to linger longer than usual, though no significant cuts or wounds were reported."
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "bb7e3648-38a8-44c1-baec-e7808569c051" },
+              { "SegmentId": "a66265c6-2a7e-495d-a65a-9c18825bc982" }
+            ],
+            "SummarizedSegment": "The patient has a family history of diabetes, with one grandfather potentially having type 1 diabetes requiring insulin therapy."
+          }
+        ]
+      },
+      {
+        "SectionName": "REVIEW_OF_SYSTEMS",
+        "Summary": [
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "de2c9186-a998-4a9b-8097-89f02a3b21fd" },
+              { "SegmentId": "0e0e3f67-e27f-4d98-9413-c0056026143b" },
+              { "SegmentId": "cf462b36-175c-40e9-b15b-b8403fea75e3" },
+              { "SegmentId": "656f94da-3c02-403e-a322-bdfd7c4dedd4" },
+              { "SegmentId": "14e5eb79-7ebf-4860-90fa-18b261637e69" },
+              { "SegmentId": "53c11d9a-0382-4430-b281-822f90002552" },
+              { "SegmentId": "960910ef-be49-4912-add6-24b9030734d0" },
+              { "SegmentId": "9f4f72bf-68f9-4660-b2dc-2456b6ceae3d" }
+            ],
+            "SummarizedSegment": "Constitutional: Fatigue, weight loss"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "b53421da-cb84-41a1-9e10-b66ddb8cd634" },
+              { "SegmentId": "0744625a-097d-482a-951d-fa1e5aeb2aed" },
+              { "SegmentId": "253a3a40-9c2e-46c5-a17a-78b528337525" },
+              { "SegmentId": "8885ce71-af9a-411c-9663-74d4f478ad06" },
+              { "SegmentId": "37a1439c-fff6-4b3c-b0b4-9791d9fa4236" }
+            ],
+            "SummarizedSegment": "HEENT: Blurred vision"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "de2c9186-a998-4a9b-8097-89f02a3b21fd" },
+              { "SegmentId": "0e0e3f67-e27f-4d98-9413-c0056026143b" },
+              { "SegmentId": "cf462b36-175c-40e9-b15b-b8403fea75e3" },
+              { "SegmentId": "9f4f72bf-68f9-4660-b2dc-2456b6ceae3d" }
+            ],
+            "SummarizedSegment": "Gastrointestinal: Increased hunger"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "7f538223-b359-4a3e-b809-6a3800babfab" },
+              { "SegmentId": "77ae1675-1623-4a06-8fe7-1044e3d6cc8f" },
+              { "SegmentId": "37242348-3cbf-4152-9543-c4c74148b5d7" },
+              { "SegmentId": "2a598ad6-32c3-4650-8e9e-3fba90215555" }
+            ],
+            "SummarizedSegment": "Genitourinary: Increased urination"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "6b585965-54e4-4c35-b98c-626afb90f825" },
+              { "SegmentId": "e3666196-2981-4088-8b37-71c31028ed92" },
+              { "SegmentId": "8156359b-9b4d-45c2-8f9e-3504f4432627" },
+              { "SegmentId": "a9b578e6-629e-4b7d-9eff-509ff68a34ce" },
+              { "SegmentId": "b29a6667-07f9-438a-836c-d7830d1c759e" }
+            ],
+            "SummarizedSegment": "Musculoskeletal: Tingling in feet"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "de2c9186-a998-4a9b-8097-89f02a3b21fd" },
+              { "SegmentId": "0e0e3f67-e27f-4d98-9413-c0056026143b" },
+              { "SegmentId": "cf462b36-175c-40e9-b15b-b8403fea75e3" },
+              { "SegmentId": "77ae1675-1623-4a06-8fe7-1044e3d6cc8f" },
+              { "SegmentId": "37242348-3cbf-4152-9543-c4c74148b5d7" },
+              { "SegmentId": "2a598ad6-32c3-4650-8e9e-3fba90215555" }
+            ],
+            "SummarizedSegment": "Endocrine: Increased thirst"
+          }
+        ]
+      },
+      {
+        "SectionName": "PAST_MEDICAL_HISTORY",
+        "Summary": [
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "14e5eb79-7ebf-4860-90fa-18b261637e69" },
+              { "SegmentId": "53c11d9a-0382-4430-b281-822f90002552" },
+              { "SegmentId": "960910ef-be49-4912-add6-24b9030734d0" },
+              { "SegmentId": "9f4f72bf-68f9-4660-b2dc-2456b6ceae3d" },
+              { "SegmentId": "9da77e7d-da0c-4f69-8256-164a936628d2" },
+              { "SegmentId": "40308ea4-e4d0-495e-9b1f-b674144b2b7d" },
+              { "SegmentId": "a9b578e6-629e-4b7d-9eff-509ff68a34ce" },
+              { "SegmentId": "b29a6667-07f9-438a-836c-d7830d1c759e" }
+            ],
+            "SummarizedSegment": "- No specific past medical conditions are mentioned"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "bb7e3648-38a8-44c1-baec-e7808569c051" },
+              { "SegmentId": "a66265c6-2a7e-495d-a65a-9c18825bc982" }
+            ],
+            "SummarizedSegment": "- Possible family history of diabetes (patient mentions their grandfather on mother's side may have had diabetes requiring insulin)"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "de2c9186-a998-4a9b-8097-89f02a3b21fd" },
+              { "SegmentId": "0e0e3f67-e27f-4d98-9413-c0056026143b" },
+              { "SegmentId": "cf462b36-175c-40e9-b15b-b8403fea75e3" },
+              { "SegmentId": "656f94da-3c02-403e-a322-bdfd7c4dedd4" }
+            ],
+            "SummarizedSegment": "- Recent symptoms:"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "de2c9186-a998-4a9b-8097-89f02a3b21fd" },
+              { "SegmentId": "0e0e3f67-e27f-4d98-9413-c0056026143b" },
+              { "SegmentId": "cf462b36-175c-40e9-b15b-b8403fea75e3" },
+              { "SegmentId": "656f94da-3c02-403e-a322-bdfd7c4dedd4" }
+            ],
+            "SummarizedSegment": "    - Excessive fatigue despite adequate sleep"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "de2c9186-a998-4a9b-8097-89f02a3b21fd" },
+              { "SegmentId": "0e0e3f67-e27f-4d98-9413-c0056026143b" },
+              { "SegmentId": "cf462b36-175c-40e9-b15b-b8403fea75e3" }
+            ],
+            "SummarizedSegment": "    - Increased hunger and thirst"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "7f538223-b359-4a3e-b809-6a3800babfab" },
+              { "SegmentId": "77ae1675-1623-4a06-8fe7-1044e3d6cc8f" },
+              { "SegmentId": "37242348-3cbf-4152-9543-c4c74148b5d7" },
+              { "SegmentId": "2a598ad6-32c3-4650-8e9e-3fba90215555" }
+            ],
+            "SummarizedSegment": "    - Increased urination frequency"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "b53421da-cb84-41a1-9e10-b66ddb8cd634" },
+              { "SegmentId": "0744625a-097d-482a-951d-fa1e5aeb2aed" },
+              { "SegmentId": "253a3a40-9c2e-46c5-a17a-78b528337525" },
+              { "SegmentId": "8885ce71-af9a-411c-9663-74d4f478ad06" },
+              { "SegmentId": "37a1439c-fff6-4b3c-b0b4-9791d9fa4236" }
+            ],
+            "SummarizedSegment": "    - Occasional blurred vision"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "14e5eb79-7ebf-4860-90fa-18b261637e69" },
+              { "SegmentId": "53c11d9a-0382-4430-b281-822f90002552" },
+              { "SegmentId": "960910ef-be49-4912-add6-24b9030734d0" },
+              { "SegmentId": "9f4f72bf-68f9-4660-b2dc-2456b6ceae3d" }
+            ],
+            "SummarizedSegment": "    - Unexplained weight loss of 10 lbs"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "6b585965-54e4-4c35-b98c-626afb90f825" },
+              { "SegmentId": "e3666196-2981-4088-8b37-71c31028ed92" },
+              { "SegmentId": "8156359b-9b4d-45c2-8f9e-3504f4432627" },
+              { "SegmentId": "a9b578e6-629e-4b7d-9eff-509ff68a34ce" },
+              { "SegmentId": "b29a6667-07f9-438a-836c-d7830d1c759e" }
+            ],
+            "SummarizedSegment": "    - Occasional tingling/numbness in feet"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "a9b578e6-629e-4b7d-9eff-509ff68a34ce" },
+              { "SegmentId": "b29a6667-07f9-438a-836c-d7830d1c759e" }
+            ],
+            "SummarizedSegment": "    - Bruises lingering longer than usual"
+          }
+        ]
+      },
+      {
+        "SectionName": "ASSESSMENT",
+        "Summary": [
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "ee00e7ac-591f-4b40-aaae-6ece4a529e25" },
+              { "SegmentId": "aa79f40a-9020-4ca3-93fb-09e6bf70498c" },
+              { "SegmentId": "4d4eec9f-fe4b-4f1b-a876-0670d5282e6c" },
+              { "SegmentId": "8f318f35-ebc6-439e-9c45-325582661b9d" },
+              { "SegmentId": "83915ff5-ab04-497c-8159-10dbe3707ba6" },
+              { "SegmentId": "15608784-7b71-47d9-ac20-99cc2dcf010f" },
+              { "SegmentId": "ea2327b2-fb10-4db8-b00b-0e355acecdd0" }
+            ],
+            "SummarizedSegment": "- Type 2 diabetes"
+          }
+        ]
+      },
+      {
+        "SectionName": "PLAN",
+        "Summary": [
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "b551557a-9a11-4966-bdf5-f387ef75d6a9" },
+              { "SegmentId": "b5c87464-9868-4f67-9d9c-7795d9bba210" },
+              { "SegmentId": "92efb34e-a00e-4298-a56f-7c8873a0387d" },
+              { "SegmentId": "3098856e-804e-4d90-9d44-c27f3685473b" },
+              { "SegmentId": "c77d5878-f82e-494c-bd72-0932bd3d15a6" },
+              { "SegmentId": "88826046-fb37-4b31-bebd-9cf1393c2cd3" },
+              { "SegmentId": "a1310094-aed2-4dd5-8ff6-3085298d4c05" },
+              { "SegmentId": "c3128e42-1bdf-4fa5-af04-8ca637879c78" },
+              { "SegmentId": "da2b76f5-2d94-4604-9494-4f5803f516c5" },
+              { "SegmentId": "07d01ae4-1cef-4084-ad6d-d4f87a627607" },
+              { "SegmentId": "e8f57901-7d97-4264-828f-ca3f295a668d" },
+              { "SegmentId": "d4612077-8b74-4f16-9944-3bdb4b206736" },
+              { "SegmentId": "dec6a49c-f7fd-46b4-8725-dff8cf051e97" },
+              { "SegmentId": "a552143e-3ec3-4bfd-b9d1-2d2124f3bb34" },
+              { "SegmentId": "78d8a319-d7aa-4491-9eae-9a6deda69795" }
+            ],
+            "SummarizedSegment": "Type 2 diabetes\n- Perform a blood glucose test using a glucometer to check the patient's current blood sugar level, which came back high at 250 mg/dL (normal is <125 mg/dL after eating).\n"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "e6a40795-0c49-4242-85dc-34b04dd061cf" },
+              { "SegmentId": "3eda2655-cd8b-46eb-871c-693f0537b8ca" },
+              { "SegmentId": "22756867-8467-4f97-bc21-9aa23c39ee2e" },
+              { "SegmentId": "577cf889-a229-4d50-ba48-1165af3abb2b" }
+            ],
+            "SummarizedSegment": "- Order blood work, specifically a hemoglobin A1C test, to confirm the diagnosis of diabetes and get a 3-month average of the patient's blood sugar levels.\n"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "c56717e9-dea5-4d11-83a6-d511f1c61546" },
+              { "SegmentId": "85cbd75b-ff41-40e6-aa58-e42b8852b9f1" },
+              { "SegmentId": "de5a2e5c-39b2-41ed-baab-0a4c27ed932c" },
+              { "SegmentId": "a36ec546-db58-4455-80ab-f7c0b9b80401" },
+              { "SegmentId": "2352cb31-cbbf-4963-987d-8aa1ce807168" },
+              { "SegmentId": "67902955-e070-4e75-a4e2-f56b81a535ef" },
+              { "SegmentId": "6dc626cd-47af-4da8-9f4a-9016145daf3c" },
+              { "SegmentId": "2ecdbb43-4390-4708-84af-e04c3df269c3" }
+            ],
+            "SummarizedSegment": "- Provide the patient with their own glucometer to monitor blood sugar levels at home by:\n"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "de5a2e5c-39b2-41ed-baab-0a4c27ed932c" },
+              { "SegmentId": "a36ec546-db58-4455-80ab-f7c0b9b80401" },
+              { "SegmentId": "2352cb31-cbbf-4963-987d-8aa1ce807168" },
+              { "SegmentId": "67902955-e070-4e75-a4e2-f56b81a535ef" }
+            ],
+            "SummarizedSegment": "- Checking fasting blood sugar in the morning before eating or drinking\n"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "de5a2e5c-39b2-41ed-baab-0a4c27ed932c" },
+              { "SegmentId": "67902955-e070-4e75-a4e2-f56b81a535ef" },
+              { "SegmentId": "6dc626cd-47af-4da8-9f4a-9016145daf3c" }
+            ],
+            "SummarizedSegment": "- Checking blood sugar 2 hours after a meal (lunch or dinner)\n"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "2ecdbb43-4390-4708-84af-e04c3df269c3" }
+            ],
+            "SummarizedSegment": "- Keeping a log of these readings to review at follow-up appointments\n"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "1a9be4ba-0843-4e8b-95ac-84475f7434a8" },
+              { "SegmentId": "ce075dbd-9506-480e-957e-0285afce8bf8" }
+            ],
+            "SummarizedSegment": "- Depending on the hemoglobin A1C result:\n"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "31391030-bf46-40e6-a510-2dfe9747b0f5" },
+              { "SegmentId": "26b23b6a-313e-4fef-85f1-25a5bf60df28" },
+              { "SegmentId": "6a52a6a0-16f9-4d6e-9079-a55093ca24c0" },
+              { "SegmentId": "38d0558d-dba0-4eb2-a884-b22c769ec56d" },
+              { "SegmentId": "a2f02a8c-77be-49e0-8cc7-6f31ad2d7d6f" }
+            ],
+            "SummarizedSegment": "- If it is very high, likely start the patient on oral diabetes medication (pills) as their pancreas is not producing enough insulin.\n"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "803bdd47-55c8-48e2-b27d-d42ef01f142e" },
+              { "SegmentId": "a12dd964-e3fc-4ec2-83ba-d5b345299a1b" },
+              { "SegmentId": "52174116-5f2f-4940-b02f-295c0486ef38" },
+              { "SegmentId": "cd377616-2d18-4e08-a018-0961a8eb1e58" },
+              { "SegmentId": "6f2d7a61-673b-471a-acc4-f56f15055514" },
+              { "SegmentId": "be19d00e-f286-498c-917a-740af68603f1" }
+            ],
+            "SummarizedSegment": "- If it is moderately high, attempt to control it initially with diet and lifestyle changes by watching calorie, carbohydrate, and sugar intake.\n"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "e6a40795-0c49-4242-85dc-34b04dd061cf" },
+              { "SegmentId": "3eda2655-cd8b-46eb-871c-693f0537b8ca" },
+              { "SegmentId": "22756867-8467-4f97-bc21-9aa23c39ee2e" },
+              { "SegmentId": "577cf889-a229-4d50-ba48-1165af3abb2b" },
+              { "SegmentId": "1370e1cf-f7b4-4678-b7b7-ac22db7af062" },
+              { "SegmentId": "c56717e9-dea5-4d11-83a6-d511f1c61546" },
+              { "SegmentId": "9402db33-c1f2-4e4a-9197-19f45bd624cb" },
+              { "SegmentId": "6bbc5f72-357f-4c52-b9a3-5300d8451a02" }
+            ],
+            "SummarizedSegment": "- Closely monitor the patient's condition and hemoglobin A1C levels every 3-6 months to assess if insulin injections may be required in the future if the pancreas stops producing insulin altogether.\n"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "31391030-bf46-40e6-a510-2dfe9747b0f5" },
+              { "SegmentId": "26b23b6a-313e-4fef-85f1-25a5bf60df28" },
+              { "SegmentId": "6a52a6a0-16f9-4d6e-9079-a55093ca24c0" },
+              { "SegmentId": "38d0558d-dba0-4eb2-a884-b22c769ec56d" },
+              { "SegmentId": "a2f02a8c-77be-49e0-8cc7-6f31ad2d7d6f" },
+              { "SegmentId": "9402db33-c1f2-4e4a-9197-19f45bd624cb" },
+              { "SegmentId": "6bbc5f72-357f-4c52-b9a3-5300d8451a02" },
+              { "SegmentId": "803bdd47-55c8-48e2-b27d-d42ef01f142e" },
+              { "SegmentId": "a12dd964-e3fc-4ec2-83ba-d5b345299a1b" },
+              { "SegmentId": "1a9be4ba-0843-4e8b-95ac-84475f7434a8" },
+              { "SegmentId": "ce075dbd-9506-480e-957e-0285afce8bf8" }
+            ],
+            "SummarizedSegment": "- Educate the patient that diabetes is a lifelong condition that requires continual monitoring of blood sugars, diet, and potentially medication to manage it properly.\n"
+          }
+        ]
+      },
+      { "SectionName": "PHYSICAL_EXAMINATION", "Summary": [] },
+      {
+        "SectionName": "PAST_FAMILY_HISTORY",
+        "Summary": [
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "bb7e3648-38a8-44c1-baec-e7808569c051" },
+              { "SegmentId": "a66265c6-2a7e-495d-a65a-9c18825bc982" }
+            ],
+            "SummarizedSegment": "One of the patient's grandfathers (mother's father) had diabetes and required insulin, suggesting he likely had type 1 diabetes."
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "758a5e73-50aa-4638-bb58-2e83185984f1" }
+            ],
+            "SummarizedSegment": "The patient is unsure if the grandfather was diagnosed later in life or earlier."
+          }
+        ]
+      },
+      { "SectionName": "PAST_SOCIAL_HISTORY", "Summary": [] },
+      {
+        "SectionName": "DIAGNOSTIC_TESTING",
+        "Summary": [
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "dec6a49c-f7fd-46b4-8725-dff8cf051e97" },
+              { "SegmentId": "a552143e-3ec3-4bfd-b9d1-2d2124f3bb34" },
+              { "SegmentId": "78d8a319-d7aa-4491-9eae-9a6deda69795" }
+            ],
+            "SummarizedSegment": "Glucometer: blood sugar 250, high"
+          },
+          {
+            "EvidenceLinks": [
+              { "SegmentId": "3eda2655-cd8b-46eb-871c-693f0537b8ca" },
+              { "SegmentId": "22756867-8467-4f97-bc21-9aa23c39ee2e" },
+              { "SegmentId": "577cf889-a229-4d50-ba48-1165af3abb2b" }
+            ],
+            "SummarizedSegment": "Hemoglobin A1C: pending to confirm diabetes diagnosis and get 3-month average blood sugars"
+          }
+        ]
+      }
+    ]
+  }
+}
