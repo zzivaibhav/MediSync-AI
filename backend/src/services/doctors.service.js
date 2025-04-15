@@ -3,16 +3,17 @@ import {createDirectory, deleteDirectory,uploadFile  } from './s3.service.js'
 import fs from 'fs';
 import { logError, logInfo } from '../utils/CustomLogger.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
+import {ApiError} from '../utils/ApiError.js';
 const createPatient = async (req, res) => {
     try {
-        // Log the incoming request body to debug
-        console.log('Received data:', req.body);
-
-        // Extract fields from req.body
+        // Log the incomin  g request body to debug
+        console.log("incoming request body:", req.body);
+     logInfo("Incoming request body:", req.body);
+      
+         // Extract fields from req.body
         const {name, email, DOB, phoneNumber} = req.body;
 
-        // Log the extracted values
-        console.log('Extracted values:', { name, email, DOB, phoneNumber });
+       
         if (await Patient.findOne({ where: { email : email } })) {
             return res.status(400).json({
                 success: false,
@@ -25,6 +26,7 @@ const createPatient = async (req, res) => {
         // Create directory only once with name and email
         const s3_patient = await createDirectory( email);
         if(s3_patient){
+            logInfo("Successfully created Directory on S3 for "+ email)
             const patientData = await Patient.create({
                 name,
                 email,
@@ -32,7 +34,9 @@ const createPatient = async (req, res) => {
                 phoneNumber,
                 doctorID: req.user.sub
             });
-            logInfo("Successfully created Directory on S3 for "+ email)
+            if(patientData){
+                logInfo("Successfully created patient with ID: "+ patientData.id)
+            }
             
             return res.status(201).json({
                 success: true,
@@ -195,7 +199,6 @@ const updatePatient = async (req, res) => {
     }
 }
 
-
 const uploadAudio = async(req,res) =>{
    const{name, email} = req.body;
     
@@ -256,4 +259,31 @@ const uploadAudio = async(req,res) =>{
     }
   
 }
-export { createPatient, getPatients, deletePatient, updatePatient, uploadAudio };
+
+const returnRecentPatients = async (req, res) => {
+    try {
+        console.log("Fetching recent patients for doctor ID:", req.user.sub);
+        //find all the patients of the doctor
+        const patients = await Patient.findAll({
+            where:{
+                doctorID: req.user.sub
+            },
+            order:[
+                ['createdAt', 'DESC']
+            ],
+            limit: 7
+        })
+
+        //now arrange the patients in descending order of their createdAt date.
+
+        return res.status(200).json(    
+            new ApiResponse(true,"Recent patients fetched successfully",patients)
+        )
+
+    
+    } catch (error) {
+        logError("Error fetching recent patients:", error);
+       throw new ApiError(500,"Something went wrong",error.message);
+    }
+}
+export { createPatient, getPatients, deletePatient, updatePatient, uploadAudio,returnRecentPatients };
