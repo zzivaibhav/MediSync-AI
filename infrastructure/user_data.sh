@@ -1,91 +1,55 @@
 #!/bin/bash
 
-# Update the system
-sudo dnf update -y
+# EC2 setup script for MediSync AI Frontend Docker container
+# This script installs Docker and runs the specified container on Amazon Linux
 
-# Install Nginx
-sudo dnf install nginx -y
+# Exit on any error
+set -e
 
-# Start Nginx service
-sudo systemctl start nginx
+echo "===== Starting MediSync AI Docker Container Setup ====="
 
-# Enable Nginx to start on boot
-sudo systemctl enable nginx
+# Update system packages
+echo "Updating system packages..."
+sudo yum update -y
 
-# Open HTTP port in firewall
-sudo firewall-cmd --permanent --add-service=http
-sudo firewall-cmd --reload
+# Install Docker if not already installed
+if ! command -v docker &> /dev/null; then
+    echo "Installing Docker..."
+    sudo yum install -y docker
+    
+    # Start Docker service
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    
+    # Add current user to docker group to avoid using sudo
+    sudo usermod -aG docker $USER
+    echo "Docker installed successfully!"
+else
+    echo "Docker is already installed."
+fi
 
-# Get IP addresses (both public and private for completeness)
-PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
-PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
-INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-AVAILABILITY_ZONE=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
+# Pull the specified Docker image
+echo "Pulling Docker image: vaibhav1476/medisync-ai-frontend..."
+sudo docker pull vaibhav1476/medisync-ai-frontend
 
-# Create a simple HTML file showing IP information
-sudo cat > /usr/share/nginx/html/index.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-    <title>EC2 Instance Information</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-        .info-box {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 20px;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        .info-item {
-            margin: 10px 0;
-            padding: 8px;
-            background-color: #f8f8f8;
-            border-radius: 4px;
-        }
-        h1 {
-            color: #333;
-        }
-    </style>
-</head>
-<body>
-    <div class="info-box">
-        <h1>EC2 Instance Information</h1>
-        <div class="info-item">
-            <strong>Public IP:</strong> PUBLICIP
-        </div>
-        <div class="info-item">
-            <strong>Private IP:</strong> PRIVATEIP
-        </div>
-        <div class="info-item">
-            <strong>Instance ID:</strong> INSTANCEID
-        </div>
-        <div class="info-item">
-            <strong>Availability Zone:</strong> AZ
-        </div>
-    </div>
-</body>
-</html>
-EOF
+# Stop any existing container with the same name if it exists
+if sudo docker ps -a | grep -q medisync-frontend; then
+    echo "Stopping existing medisync-frontend container..."
+    sudo docker stop medisync-frontend || true
+    sudo docker rm medisync-frontend || true
+fi
 
-# Replace placeholders with actual values using sed
-sudo sed -i "s/PUBLICIP/$PUBLIC_IP/g" /usr/share/nginx/html/index.html
-sudo sed -i "s/PRIVATEIP/$PRIVATE_IP/g" /usr/share/nginx/html/index.html
-sudo sed -i "s/INSTANCEID/$INSTANCE_ID/g" /usr/share/nginx/html/index.html
-sudo sed -i "s/AZ/$AVAILABILITY_ZONE/g" /usr/share/nginx/html/index.html
+# Run the Docker container
+echo "Starting MediSync AI Frontend container..."
+sudo docker run -d \
+    --name medisync-frontend \
+    -p 80:80 \
+    --restart unless-stopped \
+    vaibhav1476/medisync-ai-frontend
 
-# Restart Nginx to ensure the new page is loaded
-sudo systemctl restart nginx
+# Verify the container is running
+echo "Verifying container status..."
+sudo docker ps | grep medisync-frontend
 
-# Debug output to verify the information was retrieved
-echo "Instance information:"
-echo "Public IP: ${PUBLIC_IP}"
-echo "Private IP: ${PRIVATE_IP}"
-echo "Instance ID: ${INSTANCE_ID}"
-echo "AZ: ${AVAILABILITY_ZONE}"
+echo "===== MediSync AI Frontend setup complete! ====="
+echo "The application should now be accessible at http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)"
