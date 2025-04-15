@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import multer from "multer";
 import { s3Client } from "../src/utils/s3client.js";
 import authenticatJWT from "./middlewares/authenticate.js";
-
+import pino from "pino-http"
 dotenv.config();
 
 const app = express();
@@ -31,6 +31,9 @@ app.use(
 //Static files
 app.use(express.static("public"));
 
+
+//instanticate the logger
+app.use(pino)
 // Multer configuration for memory storage
 const storage = multer.memoryStorage();
 const upload = multer({ 
@@ -96,6 +99,11 @@ app.post("/upload-audio", upload.single('audioFile'), async (req, res) => {
 app.get("/",authenticatJWT, (req, res) => {
   res.send("Hello from Express!");
 });
+
+app.get("/test", (req, res) => {
+  res.send("Hello from Express!");
+}
+);
 // routes import
 import { router as cognitoRouter } from "./routes/cognito.routes.js";
 import {router as doctorRouter} from "./routes/doctor.routes.js";
@@ -103,5 +111,5 @@ import {router as doctorRouter} from "./routes/doctor.routes.js";
 
 app.use("/cognito", cognitoRouter);
 app.use("/doctor-api", doctorRouter);
-app.use
+
 export { app };

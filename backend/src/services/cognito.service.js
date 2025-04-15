@@ -1,15 +1,22 @@
 import {hashGenerator} from '../utils/cognito.hash.js'
-  import AWS from 'aws-sdk'
- import dotenv from 'dotenv'
- dotenv.config();
+//import AWS from 'aws-sdk'
+import cognito_client from '@aws-sdk/client-cognito-identity-provider'
 import jwt from 'jsonwebtoken'
 import Doctor from '../model/doctor.model.js'
-import { where } from 'sequelize';
 import {ApiResponse} from '../utils/ApiResponse.js'
+import dotenv from 'dotenv'
+dotenv.config();
+
 
 
 // AWS Cognito Configuration
-const cognito = new AWS.CognitoIdentityServiceProvider();
+const cognito = new cognito_client.CognitoIdentityProvider({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  // If using session token (temporary credentials)
+  sessionToken: process.env.AWS_SESSION_TOKEN,
+});
+// const cognito = new AWS.CognitoIdentityServiceProvider();
 
 const handleSignup = async (req, res) => {
   const { email, password, name, phone_number } = req.body;
@@ -96,6 +103,7 @@ const handleEmailVerification = async (req, res) => {
         res.status(400).json(error);
       }
 }
+
 
 const handleLogin = async (req, res) => {
   const{email, password} = req.body;
