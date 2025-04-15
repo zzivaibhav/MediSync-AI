@@ -62,7 +62,7 @@ resource "aws_security_group" "frontend" {
 
 resource "aws_security_group" "database" {
     name = "database-sg"
-    description = "Allow SSH inbound traffic and http/https traffic in and out"
+    description = "Allow MySQL Aurora inbound traffic and outbound traffic inside the vpc only."
     vpc_id = aws_vpc.vpc.id  
     tags = {
         Name = "database-sg"
@@ -75,12 +75,13 @@ resource "aws_security_group" "database" {
     #     cidr_blocks = ["0.0.0.0/0"]
     # }
     
-    ingress {
-        from_port   = 80
-        to_port     = 80
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
+  ingress  {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+
+  }
     
     egress {
         from_port   = 0
