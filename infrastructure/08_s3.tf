@@ -40,3 +40,18 @@ force_destroy = true
 #   principal     = "s3.amazonaws.com"
 #   source_arn    = aws_s3_bucket.bucket.arn
 # }
+
+
+// s3 to sqs event notification
+resource "aws_s3_bucket_notification" "s3_to_sqs" {
+  bucket = aws_s3_bucket.output-bucket.id
+
+  queue {
+    queue_arn = aws_sqs_queue.output_status_update_queue.arn
+    events    = ["s3:ObjectCreated:*"]
+
+    filter_prefix = ""
+  }
+
+  depends_on = [aws_sqs_queue_policy.output_processing_policy]
+}
