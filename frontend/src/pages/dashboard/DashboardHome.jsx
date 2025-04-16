@@ -193,7 +193,7 @@ const RecentTranscripts = ({ loading: initialLoading }) => {
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-500 hover:text-blue-400 cursor-pointer">
-                    <Link to={`/dashboard/transcripts/${transcript.id}`}>
+                    <Link to={`/dashboard/analysis/${transcript.id}`}>
                       View Details
                     </Link>
                   </td>

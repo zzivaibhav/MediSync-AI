@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Box, Typography, IconButton, Chip, Collapse, Tooltip, LinearProgress } from '@mui/material';
 import { 
@@ -30,6 +31,7 @@ export const PatientCard = ({
   onRefresh, // Add this prop
   visits = []
 }) => {
+  const navigate = useNavigate();
   // Calculate age from DOB
   const age = Math.floor((new Date() - new Date(patient.DOB)) / (365.25 * 24 * 60 * 60 * 1000));
 
@@ -455,6 +457,7 @@ export const PatientCard = ({
                             <Tooltip title="View Report">
                               <IconButton
                                 size="small"
+                                onClick={() => navigate(`/dashboard/analysis/${visit.id}`)}
                                 sx={{
                                   color: '#10b981',
                                   bgcolor: 'rgba(16, 185, 129, 0.1)',

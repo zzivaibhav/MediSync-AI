@@ -1,22 +1,36 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import DynamicAnalysis from './DynamicAnalysis';
+import axios from 'axios';
 
 const PatientAnalysis = () => {
+  const { visitId } = useParams();
   const [summaryData, setSummaryData] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        // Import the JSON data
-        const response = await import('../../../../demo response/summary.json');
-        setSummaryData(response.default);
-      } catch (error) {
-        console.error('Error loading summary data:', error);
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) throw new Error('No access token found');
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/doctor-api/report`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          params: { id: visitId }
+        }
+      );
+      if (response.status !== 200) {
+        throw new Error('Failed to fetch data');
       }
+      setSummaryData(response.data.data);
     };
 
-    loadData();
-  }, []);
+    if (visitId) {
+      loadData();
+    }
+  }, [visitId]);
 
   if (!summaryData) {
     return (
