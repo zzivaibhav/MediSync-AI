@@ -11,7 +11,9 @@ import {
   KeyboardArrowDown,
   KeyboardArrowUp,
   Delete as DeleteIcon,
-  Refresh as RefreshIcon 
+  Refresh as RefreshIcon,
+  CheckCircle,
+  InsertDriveFile
 } from '@mui/icons-material';
 import { HexagonalAvatar } from './HexagonalAvatar';
 
@@ -43,26 +45,19 @@ export const PatientCard = ({
 
   const statusStyle = getStatusStyle(patient.status);
 
-  // Add this function for status styling
-  const getAnalysisStatusConfig = (status) => {
-    const configs = {
-      completed: {
-        color: '#10b981',
-        progress: 100,
-        label: 'Analysis Complete'
-      },
-      in_progress: {
-        color: '#f59e0b',
-        progress: 65,
-        label: 'Processing...'
-      },
-      pending: {
-        color: '#64748b',
-        progress: 0,
-        label: 'Pending Analysis'
-      }
+  // Simplified status config
+  const getStatusConfig = (status) => {
+    return status === 'Processed' ? {
+      color: '#10b981',
+      icon: <CheckCircle fontSize="small" />,
+      label: 'Report Ready',
+      bg: 'rgba(16, 185, 129, 0.1)'
+    } : {
+      color: '#f59e0b',
+      icon: <CloudUpload fontSize="small" />,
+      label: 'Processing',
+      bg: 'rgba(245, 158, 11, 0.1)'
     };
-    return configs[status] || configs.pending;
   };
 
   const handleDeleteVisit = async (visit) => {
@@ -165,57 +160,168 @@ export const PatientCard = ({
         </Box>
 
         {/* Action Buttons */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          {[
-            { icon: <VisibilityOutlined />, color: '#38bdf8', title: 'View' },
-            { icon: <Edit />, color: '#22c55e', title: 'Edit', onClick: onEdit },
-            { icon: <AddCircleOutline />, color: '#8b5cf6', title: 'Add Visit', onClick: onAddVisit },
-            { icon: <CloudUpload />, color: '#f59e0b', title: 'Upload', onClick: onUpload },
-            { icon: <DeleteOutlined />, color: '#ef4444', title: 'Delete', onClick: onDelete }
-          ].map((action, index) => (
-            <IconButton
-              key={index}
-              size="small"
-              onClick={action.onClick}
-              sx={{
-                color: action.color,
-                bgcolor: `${action.color}10`,
-                backdropFilter: 'blur(4px)',
-                '&:hover': {
-                  bgcolor: `${action.color}20`,
-                }
-              }}
-            >
-              {action.icon}
-            </IconButton>
-          ))}
-          <IconButton
-            size="small"
-            onClick={handleRefresh}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {/* Primary Actions Group */}
+          <Box
             sx={{
-              color: '#64748b',
-              ml: 1,
-              animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
-              '@keyframes spin': {
-                '0%': { transform: 'rotate(0deg)' },
-                '100%': { transform: 'rotate(360deg)' }
-              }
+              display: 'flex',
+              gap: 1,
+              p: 0.5,
+              bgcolor: 'rgba(15, 23, 42, 0.4)',
+              borderRadius: '8px',
+              border: '1px solid rgba(148, 163, 184, 0.1)',
             }}
           >
-            <RefreshIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={onExpand}
+            <Tooltip title="View Details">
+              <IconButton
+                size="small"
+                sx={{
+                  color: '#38bdf8',
+                  '&:hover': {
+                    bgcolor: 'rgba(56, 189, 248, 0.1)',
+                    transform: 'translateY(-1px)'
+                  },
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <VisibilityOutlined fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Edit Patient">
+              <IconButton
+                size="small"
+                onClick={onEdit}
+                sx={{
+                  color: '#22c55e',
+                  '&:hover': {
+                    bgcolor: 'rgba(34, 197, 94, 0.1)',
+                    transform: 'translateY(-1px)'
+                  },
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <Edit fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+
+          {/* Secondary Actions Group */}
+          <Box
             sx={{
-              color: '#64748b',
+              display: 'flex',
+              gap: 1,
+              p: 0.5,
               ml: 1,
-              transform: isExpanded ? 'rotate(180deg)' : 'none',
-              transition: 'transform 0.2s ease'
+              bgcolor: 'rgba(15, 23, 42, 0.4)',
+              borderRadius: '8px',
+              border: '1px solid rgba(148, 163, 184, 0.1)',
             }}
           >
-            <KeyboardArrowDown />
-          </IconButton>
+            <Tooltip title="Add Visit">
+              <IconButton
+                size="small"
+                onClick={onAddVisit}
+                sx={{
+                  color: '#8b5cf6',
+                  '&:hover': {
+                    bgcolor: 'rgba(139, 92, 246, 0.1)',
+                    transform: 'translateY(-1px)'
+                  },
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <AddCircleOutline fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Upload Audio">
+              <IconButton
+                size="small"
+                onClick={onUpload}
+                sx={{
+                  color: '#f59e0b',
+                  '&:hover': {
+                    bgcolor: 'rgba(245, 158, 11, 0.1)',
+                    transform: 'translateY(-1px)'
+                  },
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <CloudUpload fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+
+          {/* Utility Actions Group */}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              p: 0.5,
+              ml: 1,
+              bgcolor: 'rgba(15, 23, 42, 0.4)',
+              borderRadius: '8px',
+              border: '1px solid rgba(148, 163, 184, 0.1)',
+            }}
+          >
+            <Tooltip title="Delete Patient">
+              <IconButton
+                size="small"
+                onClick={onDelete}
+                sx={{
+                  color: '#ef4444',
+                  '&:hover': {
+                    bgcolor: 'rgba(239, 68, 68, 0.1)',
+                    transform: 'translateY(-1px)'
+                  },
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <DeleteOutlined fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Refresh Visits">
+              <IconButton
+                size="small"
+                onClick={handleRefresh}
+                sx={{
+                  color: '#64748b',
+                  animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
+                  '&:hover': {
+                    bgcolor: 'rgba(100, 116, 139, 0.1)',
+                    transform: 'translateY(-1px)'
+                  },
+                  transition: 'all 0.2s ease',
+                  '@keyframes spin': {
+                    '0%': { transform: 'rotate(0deg)' },
+                    '100%': { transform: 'rotate(360deg)' }
+                  }
+                }}
+              >
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title={isExpanded ? "Collapse" : "Expand"}>
+              <IconButton
+                size="small"
+                onClick={onExpand}
+                sx={{
+                  color: '#64748b',
+                  transform: isExpanded ? 'rotate(180deg)' : 'none',
+                  '&:hover': {
+                    bgcolor: 'rgba(100, 116, 139, 0.1)',
+                    transform: `${isExpanded ? 'rotate(180deg)' : 'none'} translateY(-1px)`
+                  },
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <KeyboardArrowDown fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
       </Box>
 
@@ -228,7 +334,7 @@ export const PatientCard = ({
             </Typography>
           ) : (
             visits.map((visit, index) => {
-              const statusConfig = getAnalysisStatusConfig(visit.analysisStatus);
+              const statusConfig = getStatusConfig(visit.status);
               
               return (
                 <Box
@@ -304,51 +410,80 @@ export const PatientCard = ({
                     <Box
                       sx={{
                         mt: 2,
-                        p: 1.5,
-                        bgcolor: 'rgba(15, 23, 42, 0.4)',
-                        borderRadius: '6px',
-                        border: `1px solid ${statusConfig.color}30`
+                        p: 2,
+                        bgcolor: visit.status === 'Processing' 
+                          ? 'rgba(245, 158, 11, 0.05)' 
+                          : 'rgba(16, 185, 129, 0.05)',
+                        borderRadius: '8px',
+                        border: visit.status === 'Processing'
+                          ? '1px solid #f59e0b20'
+                          : '1px solid #10b98120',
+                        transition: 'all 0.2s ease'
                       }}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography 
-                          variant="caption" 
-                          sx={{ 
-                            color: statusConfig.color,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 0.5
-                          }}
-                        >
-                          <span className="pulse-dot" 
-                            style={{
-                              width: '6px',
-                              height: '6px',
-                              borderRadius: '50%',
-                              backgroundColor: statusConfig.color,
-                              display: 'inline-block',
-                              animation: visit.analysisStatus === 'in_progress' ? 'pulse 1.5s infinite' : 'none'
-                            }}
-                          />
-                          {statusConfig.label}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-                          {statusConfig.progress}%
-                        </Typography>
-                      </Box>
-                      <LinearProgress
-                        variant={visit.analysisStatus === 'in_progress' ? 'indeterminate' : 'determinate'}
-                        value={statusConfig.progress}
-                        sx={{
-                          height: 4,
-                          bgcolor: 'rgba(148, 163, 184, 0.1)',
-                          borderRadius: 2,
-                          '& .MuiLinearProgress-bar': {
-                            bgcolor: statusConfig.color,
-                            borderRadius: 2
-                          }
-                        }}
-                      />
+                      {visit.status === 'Processing' ? (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                              <CloudUpload 
+                                sx={{ 
+                                  color: '#f59e0b',
+                                  animation: 'pulse 2s infinite'
+                                }} 
+                              />
+                            </Box>
+                            <Typography sx={{ color: '#f59e0b', fontWeight: 500 }}>
+                              Analysis in Progress
+                            </Typography>
+                          </Box>
+                          <Box sx={{ mt: 1 }}>
+                            <LinearProgress 
+                              sx={{
+                                bgcolor: 'rgba(245, 158, 11, 0.1)',
+                                '& .MuiLinearProgress-bar': {
+                                  bgcolor: '#f59e0b'
+                                },
+                                height: 6,
+                                borderRadius: 3
+                              }}
+                            />
+                            <Typography 
+                              variant="caption" 
+                              sx={{ 
+                                color: '#94a3b8',
+                                display: 'block',
+                                mt: 1,
+                                textAlign: 'center'
+                              }}
+                            >
+                              This may take a few minutes
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ) : (
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <CheckCircle sx={{ color: '#10b981' }} />
+                            <Typography sx={{ color: '#10b981', fontWeight: 500 }}>
+                              Report Ready
+                            </Typography>
+                            <Tooltip title="View Report">
+                              <IconButton
+                                size="small"
+                                sx={{
+                                  color: '#10b981',
+                                  bgcolor: 'rgba(16, 185, 129, 0.1)',
+                                  '&:hover': {
+                                    bgcolor: 'rgba(16, 185, 129, 0.2)',
+                                  }
+                                }}
+                              >
+                                <InsertDriveFile fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                        </Box>
+                      )}
                     </Box>
                   </Box>
                 </Box>
