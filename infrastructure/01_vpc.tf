@@ -180,6 +180,10 @@ resource "aws_route_table" "database-route-table-az-1" {
     cidr_block = "10.0.0.0/16"
     gateway_id = "local"
  }
+ route {
+  cidr_block = "0.0.0.0/0"
+  gateway_id = aws_nat_gateway.nat-1.id
+ }
  tags = {
    Name = "module-3-az-1-rt"
  }
@@ -257,6 +261,10 @@ resource "aws_route_table" "database-route-table-az-2" {
  route {
     cidr_block = "10.0.0.0/16"
     gateway_id = "local"
+ }
+ route {
+  cidr_block = "0.0.0.0/0"
+  gateway_id = aws_nat_gateway.nat-2.id
  }
  tags = {
    Name = "module-3-az-2-rt"

@@ -42,16 +42,16 @@ force_destroy = true
 # }
 
 
-// s3 to sqs event notification
-resource "aws_s3_bucket_notification" "s3_to_sqs" {
-  bucket = aws_s3_bucket.output-bucket.id
+# // s3 to sqs event notification
+# resource "aws_s3_bucket_notification" "s3_to_sqs" {
+#   bucket = aws_s3_bucket.output-bucket.id
 
-  queue {
-    queue_arn = aws_sqs_queue.output_status_update_queue.arn
-    events    = ["s3:ObjectCreated:*"]
+#   queue {
+#     queue_arn = aws_sqs_queue.output_status_update_queue.arn
+#     events    = ["s3:ObjectCreated:*"]
 
-    filter_prefix = ""
-  }
+#     filter_prefix = ""
+#   }
 
-  depends_on = [aws_sqs_queue_policy.output_processing_policy]
-}
+#   depends_on = [aws_sqs_queue_policy.output_processing_policy]
+# }

@@ -68,12 +68,7 @@ resource "aws_security_group" "database" {
         Name = "database-sg"
     }
 
-    # ingress {
-    #     from_port   = 22
-    #     to_port     = 22
-    #     protocol    = "tcp"
-    #     cidr_blocks = ["0.0.0.0/0"]
-    # }
+ 
     
   ingress  {
     from_port   = 3306
@@ -82,6 +77,14 @@ resource "aws_security_group" "database" {
     cidr_blocks = ["10.0.0.0/16"]
 
   }
+
+  ingress {
+    from_port = 3306
+    to_port   = 3306
+    protocol  = "tcp"
+    security_groups = [aws_security_group.output_lambda_function.id]
+  }
+  
     
     egress {
         from_port   = 0
@@ -122,6 +125,26 @@ resource "aws_security_group" "database" {
         protocol    = "tcp"
         cidr_blocks =["0.0.0.0/0"]
     }
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+
+ resource "aws_security_group" "output_lambda_function" {
+    name = "output-lambda-sg"
+    description = "Allow traffic from the vpc"
+    vpc_id = aws_vpc.vpc.id  
+    tags = {
+        Name = "output-lambda-sg"
+    }
+ 
+   
+    
+  
     egress {
         from_port   = 0
         to_port     = 0
