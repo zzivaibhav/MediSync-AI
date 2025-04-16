@@ -22,7 +22,9 @@ import {
   DialogContentText,
   DialogTitle,
   LinearProgress,
-  TextareaAutosize
+  TextareaAutosize,
+  Collapse,
+  Paper
 } from '@mui/material';
 import {
   Search,
@@ -36,7 +38,11 @@ import {
   CheckCircle,
   ErrorOutline,
   CloudUpload,
-  AddCircleOutline
+  AddCircleOutline,
+  ExpandMore,
+  ExpandLess,
+  MedicalServices,
+  Delete as DeleteIcon 
 } from '@mui/icons-material';
 import axios from 'axios';
 import { TableSkeleton } from '../../components/ui/Skeleton';
@@ -74,7 +80,14 @@ const Patients = () => {
   const [visitDialogOpen, setVisitDialogOpen] = useState(false);
   const [visitingPatient, setVisitingPatient] = useState(null);
   const [visitPurpose, setVisitPurpose] = useState('');
+
+  // New states for visits
+  const [patientVisits, setPatientVisits] = useState({});
+  const [expandedPatient, setExpandedPatient] = useState(null);
   
+  const [visitToDelete, setVisitToDelete] = useState(null);
+  const [deleteVisitDialogOpen, setDeleteVisitDialogOpen] = useState(false);
+
   // Fetch patients data
   const fetchPatients = async () => {
     setLoading(true);
@@ -96,7 +109,10 @@ const Patients = () => {
       );
       
       if (response.data && response.data.success) {
-        setPatients(response.data.data || []);
+        const fetchedPatients = response.data.data || [];
+        setPatients(fetchedPatients);
+        // Fetch visits for each patient
+        fetchedPatients.forEach(patient => fetchVisits(patient.id));
       } else {
         throw new Error(response.data?.message || 'Failed to fetch patients');
       }
@@ -112,6 +128,33 @@ const Patients = () => {
   useEffect(() => {
     fetchPatients();
   }, []);
+
+  // Fetch visits for a patient
+  const fetchVisits = async (patientId) => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) throw new Error('No access token found');
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/doctor-api/get-visits`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          },
+          params: { id:patientId }
+        }
+      );
+
+      if (response.data && response.data.success) {
+        setPatientVisits(prev => ({
+          ...prev,
+          [patientId]: response.data.data || []
+        }));
+      }
+    } catch (err) {
+      console.error('Error fetching visits:', err);
+    }
+  };
 
   // Handle opening edit modal
   const handleEditClick = (patient) => {
@@ -316,6 +359,52 @@ const Patients = () => {
     }
   };
 
+  // Handle visit deletion
+  const handleDeleteVisit = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) throw new Error('No access token found');
+
+      const response = await axios.delete(
+        `${import.meta.env.VITE_SERVER_URL}/doctor-api/delete-visit`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          params: { id: visitToDelete.id }
+        }
+      );
+
+      if (response.data && response.data.success) {
+        // Update local state to remove the deleted visit
+        setPatientVisits(prev => ({
+          ...prev,
+          [visitToDelete.patientId]: prev[visitToDelete.patientId].filter(
+            visit => visit.id !== visitToDelete.id
+          )
+        }));
+
+        setNotification({
+          open: true,
+          message: 'Visit deleted successfully',
+          severity: 'success'
+        });
+      } else {
+        throw new Error(response.data?.message || 'Failed to delete visit');
+      }
+    } catch (err) {
+      setNotification({
+        open: true,
+        message: err.message || 'Failed to delete visit. Please try again later.',
+        severity: 'error'
+      });
+    } finally {
+      setDeleteVisitDialogOpen(false);
+      setVisitToDelete(null);
+    }
+  };
+
   const handlePageChange = (event, value) => {
     setPage(value);
   };
@@ -387,6 +476,116 @@ const Patients = () => {
       case 'Inactive': return { bg: '#7f1d1d', color: '#fecaca' };
       default: return { bg: '#1f2937', color: '#e5e7eb' };
     }
+  };
+
+  // Visit Thread Component
+  const VisitThread = ({ patientId }) => {
+    const visits = patientVisits[patientId] || [];
+    
+    return (
+      <Collapse in={expandedPatient === patientId} timeout="auto">
+        <Box sx={{ 
+          p: 2,
+          bgcolor: '#1e293b',
+          borderRadius: '0 0 12px 12px',
+          border: '1px solid rgba(2, 132, 199, 0.2)',
+          borderTop: 'none'
+        }}>
+          <Box sx={{ position: 'relative', ml: 2 }}>
+            {/* Timeline line */}
+            <Box sx={{
+              position: 'absolute',
+              left: '16px',
+              top: 0,
+              bottom: 0,
+              width: '2px',
+              bgcolor: '#0ea5e9',
+              zIndex: 0
+            }} />
+            
+            {/* Visit items */}
+            {visits.map((visit, index) => (
+              <Box key={index} sx={{ 
+                display: 'flex',
+                mb: index === visits.length - 1 ? 0 : 3,
+                position: 'relative'
+              }}>
+                {/* Timeline dot */}
+                <Box sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  bgcolor: '#0ea5e9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 0 10px rgba(14, 165, 233, 0.5)',
+                  zIndex: 1,
+                  mr: 2
+                }}>
+                  <MedicalServices sx={{ color: 'white' }} fontSize="small" />
+                </Box>
+                
+                {/* Visit content */}
+                <Paper sx={{
+                  flex: 1,
+                  p: 2,
+                  bgcolor: '#0f172a',
+                  border: '1px solid rgba(2, 132, 199, 0.2)',
+                  borderRadius: '8px',
+                  '@keyframes glow': {
+                    '0%': { boxShadow: '0 0 5px rgba(14, 165, 233, 0.2)' },
+                    '50%': { boxShadow: '0 0 15px rgba(14, 165, 233, 0.4)' },
+                    '100%': { boxShadow: '0 0 5px rgba(14, 165, 233, 0.2)' }
+                  },
+                  animation: 'glow 3s infinite',
+                  '&:hover': {
+                    bgcolor: '#1e293b',
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.3s ease'
+                  },
+                  position: 'relative'
+                }}>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setVisitToDelete({ ...visit, patientId });
+                      setDeleteVisitDialogOpen(true);
+                    }}
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      color: '#ef4444',
+                      '&:hover': {
+                        bgcolor: 'rgba(239, 68, 68, 0.1)'
+                      }
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                  <Typography variant="subtitle2" sx={{ 
+                    color: '#0ea5e9',
+                    mb: 1,
+                    fontWeight: 600 
+                  }}>
+                    {new Date(visit.createdAt).toLocaleDateString()} at {new Date(visit.createdAt).toLocaleTimeString()}
+                  </Typography>
+                  <Typography sx={{ 
+                    color: '#e2e8f0',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.6
+                  }}>
+                    {visit.purpose}
+                  </Typography>
+                </Paper>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Collapse>
+    );
   };
 
   return (
@@ -580,108 +779,124 @@ const Patients = () => {
                     const statusStyle = getStatusColor(status);
                     
                     return (
-                      <tr key={patient.id} className="hover:bg-gray-800 transition-colors duration-150">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <Avatar 
-                              sx={{ 
-                                bgcolor: `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`,
-                                width: 40, 
-                                height: 40,
-                                fontSize: '0.9rem',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              {getAvatarText(patient.name)}
-                            </Avatar>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-white">{patient.name}</div>
-                              <div className="text-xs text-gray-400">ID: {patient.id}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-300 flex flex-col">
+                      <React.Fragment key={patient.id}>
+                        <tr 
+                          className="hover:bg-gray-800 transition-colors duration-150"
+                          onClick={() => setExpandedPatient(expandedPatient === patient.id ? null : patient.id)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <span className="material-icons text-xs mr-1" style={{ fontSize: '16px' }}>📧</span>
-                              {patient.email}
+                              <Avatar 
+                                sx={{ 
+                                  bgcolor: `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`,
+                                  width: 40, 
+                                  height: 40,
+                                  fontSize: '0.9rem',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                {getAvatarText(patient.name)}
+                              </Avatar>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-white">{patient.name}</div>
+                                <div className="text-xs text-gray-400">ID: {patient.id}</div>
+                              </div>
                             </div>
-                            <div className="flex items-center text-gray-400">
-                              <span className="material-icons text-xs mr-1" style={{ fontSize: '16px' }}>📱</span>
-                              {patient.phoneNumber}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-300 flex flex-col">
+                              <div className="flex items-center">
+                                <span className="material-icons text-xs mr-1" style={{ fontSize: '16px' }}>📧</span>
+                                {patient.email}
+                              </div>
+                              <div className="flex items-center text-gray-400">
+                                <span className="material-icons text-xs mr-1" style={{ fontSize: '16px' }}>📱</span>
+                                {patient.phoneNumber}
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-300">{new Date(patient.DOB).toLocaleDateString()}</div>
-                          <div className="text-xs text-gray-400">
-                            {Math.floor((new Date() - new Date(patient.DOB)) / (365.25 * 24 * 60 * 60 * 1000))} years old
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <Chip 
-                            label={status}
-                            size="small"
-                            sx={{ 
-                              bgcolor: statusStyle.bg, 
-                              color: statusStyle.color,
-                              fontWeight: 'medium',
-                              '& .MuiChip-label': {
-                                px: 2
-                              }
-                            }}
-                          />
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-300">{new Date(patient.createdAt).toLocaleDateString()}</div>
-                          <div className="text-xs text-gray-400">{new Date(patient.createdAt).toLocaleTimeString()}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <div className="flex justify-end space-x-1">
-                            <Tooltip title="View Patient">
-                              <IconButton size="small" sx={{ color: '#60a5fa', '&:hover': { bgcolor: 'rgba(96, 165, 250, 0.1)' } }}>
-                                <VisibilityOutlined fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Edit Patient">
-                              <IconButton 
-                                size="small" 
-                                sx={{ color: '#22c55e', '&:hover': { bgcolor: 'rgba(34, 197, 94, 0.1)' } }}
-                                onClick={() => handleEditClick(patient)}
-                              >
-                                <Edit fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Add Visit">
-                              <IconButton 
-                                size="small" 
-                                sx={{ color: '#8b5cf6', '&:hover': { bgcolor: 'rgba(139, 92, 246, 0.1)' } }}
-                                onClick={() => handleVisitClick(patient)}
-                              >
-                                <AddCircleOutline fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Upload Audio">
-                              <IconButton 
-                                size="small" 
-                                sx={{ color: '#f59e0b', '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.1)' } }}
-                                onClick={() => handleAudioUploadClick(patient)}
-                              >
-                                <CloudUpload fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete Patient">
-                              <IconButton 
-                                size="small" 
-                                sx={{ color: '#ef4444', '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.1)' } }}
-                                onClick={() => handleDeleteClick(patient)}
-                              >
-                                <DeleteOutlined fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </div>
-                        </td>
-                      </tr>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-300">{new Date(patient.DOB).toLocaleDateString()}</div>
+                            <div className="text-xs text-gray-400">
+                              {Math.floor((new Date() - new Date(patient.DOB)) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <Chip 
+                              label={status}
+                              size="small"
+                              sx={{ 
+                                bgcolor: statusStyle.bg, 
+                                color: statusStyle.color,
+                                fontWeight: 'medium',
+                                '& .MuiChip-label': {
+                                  px: 2
+                                }
+                              }}
+                            />
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-300">{new Date(patient.createdAt).toLocaleDateString()}</div>
+                            <div className="text-xs text-gray-400">{new Date(patient.createdAt).toLocaleTimeString()}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right">
+                            <div className="flex justify-end items-center space-x-1">
+                              {expandedPatient === patient.id ? (
+                                <ExpandLess sx={{ color: '#0ea5e9' }} />
+                              ) : (
+                                <ExpandMore sx={{ color: '#0ea5e9' }} />
+                              )}
+                              <Tooltip title="View Patient">
+                                <IconButton size="small" sx={{ color: '#60a5fa', '&:hover': { bgcolor: 'rgba(96, 165, 250, 0.1)' } }}>
+                                  <VisibilityOutlined fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Edit Patient">
+                                <IconButton 
+                                  size="small" 
+                                  sx={{ color: '#22c55e', '&:hover': { bgcolor: 'rgba(34, 197, 94, 0.1)' } }}
+                                  onClick={() => handleEditClick(patient)}
+                                >
+                                  <Edit fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Add Visit">
+                                <IconButton 
+                                  size="small" 
+                                  sx={{ color: '#8b5cf6', '&:hover': { bgcolor: 'rgba(139, 92, 246, 0.1)' } }}
+                                  onClick={() => handleVisitClick(patient)}
+                                >
+                                  <AddCircleOutline fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Upload Audio">
+                                <IconButton 
+                                  size="small" 
+                                  sx={{ color: '#f59e0b', '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.1)' } }}
+                                  onClick={() => handleAudioUploadClick(patient)}
+                                >
+                                  <CloudUpload fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete Patient">
+                                <IconButton 
+                                  size="small" 
+                                  sx={{ color: '#ef4444', '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.1)' } }}
+                                  onClick={() => handleDeleteClick(patient)}
+                                >
+                                  <DeleteOutlined fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="6" style={{ padding: 0 }}>
+                            <VisitThread patientId={patient.id} />
+                          </td>
+                        </tr>
+                      </React.Fragment>
                     );
                   })}
                 </tbody>
@@ -874,6 +1089,57 @@ const Patients = () => {
             startIcon={<AddCircleOutline />}
           >
             Create Visit
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
+      {/* Add Delete Visit Dialog */}
+      <Dialog
+        open={deleteVisitDialogOpen}
+        onClose={() => {
+          setDeleteVisitDialogOpen(false);
+          setVisitToDelete(null);
+        }}
+        PaperProps={{
+          sx: {
+            bgcolor: '#1f2937',
+            color: 'white',
+            border: '1px solid #374151',
+            borderRadius: 2,
+            maxWidth: '500px',
+            width: '100%'
+          }
+        }}
+      >
+        <DialogTitle sx={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ErrorOutline color="error" /> Delete Visit
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: '#d1d5db' }}>
+            Are you sure you want to delete this visit record? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button 
+            onClick={() => {
+              setDeleteVisitDialogOpen(false);
+              setVisitToDelete(null);
+            }}
+            sx={{ 
+              color: '#d1d5db',
+              '&:hover': { bgcolor: 'rgba(209, 213, 219, 0.08)' }
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteVisit} 
+            variant="contained"
+            color="error"
+            sx={{ borderRadius: 1 }}
+            startIcon={<DeleteOutlined />}
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
