@@ -154,18 +154,28 @@ const uploadFile = async(folderName, file)=> {
 const getFile = async (folderName ) => {
     try {
         const params = {
-            Bucket: process.env.S3_INPUT_BUCKET_NAME,
-            Key: `${folderName}/`
+            Bucket: process.env.S3_OUTPUT_BUCKET_NAME,
+            Key: `${folderName}/summary.json`
         };
         const command = new GetObjectCommand(params);
         const data = await s3Client.send(command);
-        return data.Body;
+
+        // Read the stream and parse JSON
+        const streamToString = (stream) =>
+            new Promise((resolve, reject) => {
+                const chunks = [];
+                stream.on("data", (chunk) => chunks.push(chunk));
+                stream.on("error", reject);
+                stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+            });
+
+        const bodyString = await streamToString(data.Body);
+        return JSON.parse(bodyString);
     } catch (error) {
         console.error("Error fetching file from S3:", error);
         return null;
     }
 }
- 
 
-export { createDirectory, deleteDirectory, uploadFile , getFile}; 
+export { createDirectory, deleteDirectory, uploadFile , getFile};
 

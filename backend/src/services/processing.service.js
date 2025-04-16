@@ -261,7 +261,16 @@ const fetchReport = async (req, res) => {
             get the visit analysis from S3 and then return it
         */
     }
-    const file = await getFile(visit.uniqueID,)
+    const file = await getFile(visit.uniqueID)
+    if (file) {
+      logInfo("Successfully fetched file from S3 for " + visit.uniqueID);
+      return res.status(200).json({
+        success: true,
+        message: "File fetched successfully",
+        data: file,
+      });
+    }
+    logError("Something broke while fetching the file from S3.");
   } catch (error) {
     logError("Error in fetchReport: ", error);
     throw new ApiError(500, "Internal Server Error", error);
