@@ -443,6 +443,39 @@ const Patients = () => {
     }
   };
 
+  const handleVisitDeleted = (patientId, visitId) => {
+    setPatientVisits(prev => ({
+      ...prev,
+      [patientId]: prev[patientId].filter(visit => visit.id !== visitId)
+    }));
+  };
+
+  const handleRefreshVisits = async (patientId) => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) throw new Error('No access token found');
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/doctor-api/get-visits`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          },
+          params: { id: patientId }
+        }
+      );
+
+      if (response.data && response.data.success) {
+        setPatientVisits(prev => ({
+          ...prev,
+          [patientId]: response.data.data || []
+        }));
+      }
+    } catch (err) {
+      console.error('Error refreshing visits:', err);
+    }
+  };
+
   const handlePageChange = (event, value) => {
     setPage(value);
   };
@@ -792,6 +825,8 @@ const Patients = () => {
                 onUpload={() => handleAudioUploadClick(patient)}
                 onAddVisit={() => handleVisitClick(patient)}
                 visits={patientVisits[patient.id] || []}
+                onVisitDeleted={(visitId) => handleVisitDeleted(patient.id, visitId)}
+                onRefresh={handleRefreshVisits}
               />
             ))}
           </Box>
