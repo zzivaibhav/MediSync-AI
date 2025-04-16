@@ -15,7 +15,7 @@ const logger = pino({
 const logError = (error) => {
  
     logger.error({
-        message: error.message,
+        message: error,
         stack: error.stack,
     });
    

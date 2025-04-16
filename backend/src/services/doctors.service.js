@@ -11,9 +11,9 @@ const createPatient = async (req, res) => {
      logInfo("Incoming request body:", req.body);
       
          // Extract fields from req.body
-        const {name, email, DOB, phoneNumber,purpose} = req.body;
+        const {name, email, DOB, phoneNumber} = req.body;
 
-       if(!name || !email || !DOB || !phoneNumber || !purpose){
+       if(!name || !email || !DOB || !phoneNumber  ){
             return res.status(400).json(
                 new ApiResponse(false,null,"Name, email, DOB, phoneNumber and purpose are required")
             )
@@ -28,18 +28,13 @@ const createPatient = async (req, res) => {
             });
         }
         
-
-       
-        // Create directory only once with name and email
-        const s3_patient = await createDirectory( email);
-        if(s3_patient){
-            logInfo("Successfully created Directory on S3 for "+ email)
+        logInfo("Successfully created Directory on S3 for "+ email)
             const patientData = await Patient.create({
                 name,
                 email,
                 DOB,
                 phoneNumber,
-                purpose,
+                
                 doctorID: req.user.sub
             });
             if(patientData){
@@ -51,17 +46,39 @@ const createPatient = async (req, res) => {
                 message: "Patient created successfully",
                 data: patientData
             });
-        }
+       
+        // Create directory only once with name and email
+        // const s3_patient = await createDirectory( email);
+        // if(s3_patient){
+        //     logInfo("Successfully created Directory on S3 for "+ email)
+        //     const patientData = await Patient.create({
+        //         name,
+        //         email,
+        //         DOB,
+        //         phoneNumber,
+                
+        //         doctorID: req.user.sub
+        //     });
+        //     if(patientData){
+        //         logInfo("Successfully created patient with ID: "+ patientData.id)
+        //     }
+            
+        //     return res.status(201).json({
+        //         success: true,
+        //         message: "Patient created successfully",
+        //         data: patientData
+        //     });
+        // }
 
         //log 
-        if(!s3_patient){
-            console.log("==========================================");
-            console.log("Failed to create directory on S3");
-            console.log("==========================================");
-        }
-         return res.status(500).json(
-            new ApiResponse(false,null,"Failed to create directory")
-         )
+        // if(!s3_patient){
+        //     console.log("==========================================");
+        //     console.log("Failed to create directory on S3");
+        //     console.log("==========================================");
+        // }
+        //  return res.status(500).json(
+        //     new ApiResponse(false,null,"Failed to create directory")
+        //  )
          
         }
     } catch (error) {
@@ -113,15 +130,15 @@ const deletePatient = async (req, res) => {
         });
     }
      
-   const decision =  await deleteDirectory( patient.email);
-   if(decision){
+//    const decision =  await deleteDirectory( patient.email);
+//    if(decision){
     await patient.destroy();
     logInfo("Successfully deleted patient with ID: "+ id)
     return res.status(200).json({
         success: true,
         message: "Patient deleted and associated data removed successfully"
     });
-   }
+   //}
 
    logError("Failed to delete patient with ID: "+ id)
    res.status(500).json({

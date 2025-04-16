@@ -1,34 +1,28 @@
 import { DataTypes } from 'sequelize';
 import {db} from '../db/db.js';
  
-  const Patient = db.define('Patient', {
+  const Visit = db.define('Visit', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
-  name: {
+    uniqueID:{
+        type : DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+    },
+    status:{
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "Processing"
+    },
+
+    purpose:{
         type: DataTypes.STRING,
         allowNull: false
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: {
-        isEmail: true
-      },
-      unique: true
-    },
-    DOB: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    
-    phoneNumber: {
-      type: DataTypes.STRING,
-      allowNull: false
-    }  
-   ,
+
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -46,10 +40,18 @@ import {db} from '../db/db.js';
         model: 'Doctors',
         key: 'cognitoReference'
       }
+    },
+    patientID:{
+       type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Patients',
+          key: 'id'
+        }
     }
   }, {
-    tableName: 'Patients',
+    tableName: 'Visits',
     timestamps: true
   });
 
-export default Patient;
+export default Visit;

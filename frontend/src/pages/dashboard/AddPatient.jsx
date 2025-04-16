@@ -29,7 +29,7 @@ const AddPatient = () => {
     email: '',
     DOB: null,
     phoneNumber: '',
-    purpose: ''
+ 
   });
 
   const [formErrors, setFormErrors] = useState({
@@ -37,7 +37,7 @@ const AddPatient = () => {
     email: '',
     DOB: '',
     phoneNumber: '',
-    purpose: ''
+ 
   });
 
   const handleInputChange = (e) => {
@@ -72,7 +72,7 @@ const AddPatient = () => {
 
   const validateForm = () => {
     let valid = true;
-    const newErrors = { name: '', email: '', DOB: '', phoneNumber: '', purpose: '' };
+    const newErrors = { name: '', email: '', DOB: '', phoneNumber: ''  };
     
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
@@ -100,10 +100,7 @@ const AddPatient = () => {
       valid = false;
     }
 
-    if (!formData.purpose.trim()) {
-      newErrors.purpose = 'Purpose of visit is required';
-      valid = false;
-    }
+   
 
     setFormErrors(newErrors);
     return valid;
@@ -123,7 +120,7 @@ const AddPatient = () => {
       email: formData.email,
       DOB: formData.DOB.toISOString(),
       phoneNumber: formData.phoneNumber,
-      purpose: formData.purpose
+     
     };
 
     // Add more detailed debug logs
@@ -353,37 +350,7 @@ const AddPatient = () => {
                 </Box>
               </Box>
 
-              <TextField
-                fullWidth
-                label="Purpose of Visit"
-                name="purpose"
-                value={formData.purpose}
-                onChange={handleInputChange}
-                error={!!formErrors.purpose}
-                helperText={formErrors.purpose}
-                required
-                multiline
-                rows={4}
-                variant="outlined"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    bgcolor: '#374151',
-                    borderRadius: 2,
-                    '& fieldset': {
-                      borderColor: '#4b5563',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#60a5fa',
-                    },
-                  },
-                  '& .MuiOutlinedInput-input': {
-                    color: 'white',
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: '#9ca3af',
-                  },
-                }}
-              />
+              
 
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
                 <Button

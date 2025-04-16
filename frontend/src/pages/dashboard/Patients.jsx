@@ -21,7 +21,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  LinearProgress
+  LinearProgress,
+  TextareaAutosize
 } from '@mui/material';
 import {
   Search,
@@ -34,7 +35,8 @@ import {
   DeleteOutlined,
   CheckCircle,
   ErrorOutline,
-  CloudUpload
+  CloudUpload,
+  AddCircleOutline
 } from '@mui/icons-material';
 import axios from 'axios';
 import { TableSkeleton } from '../../components/ui/Skeleton';
@@ -68,6 +70,11 @@ const Patients = () => {
   const [uploadingPatient, setUploadingPatient] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  // New states for visit creation
+  const [visitDialogOpen, setVisitDialogOpen] = useState(false);
+  const [visitingPatient, setVisitingPatient] = useState(null);
+  const [visitPurpose, setVisitPurpose] = useState('');
+  
   // Fetch patients data
   const fetchPatients = async () => {
     setLoading(true);
@@ -256,6 +263,54 @@ const Patients = () => {
       setNotification({
         open: true,
         message: err.message || 'Failed to upload audio',
+        severity: 'error'
+      });
+    }
+  };
+
+  // Handle opening visit dialog
+  const handleVisitClick = (patient) => {
+    setVisitingPatient(patient);
+    setVisitDialogOpen(true);
+  };
+
+  // Handle visit creation
+  const handleCreateVisit = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) throw new Error('No access token found');
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/doctor-api/create-visit`,
+        {
+          id: visitingPatient.id,
+          email: visitingPatient.email,
+          purpose: visitPurpose
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data && response.data.success) {
+        setNotification({
+          open: true,
+          message: 'Visit created successfully',
+          severity: 'success'
+        });
+        setVisitDialogOpen(false);
+        setVisitPurpose('');
+        setVisitingPatient(null);
+      } else {
+        throw new Error(response.data?.message || 'Failed to create visit');
+      }
+    } catch (err) {
+      setNotification({
+        open: true,
+        message: err.message || 'Failed to create visit. Please try again later.',
         severity: 'error'
       });
     }
@@ -597,6 +652,15 @@ const Patients = () => {
                                 <Edit fontSize="small" />
                               </IconButton>
                             </Tooltip>
+                            <Tooltip title="Add Visit">
+                              <IconButton 
+                                size="small" 
+                                sx={{ color: '#8b5cf6', '&:hover': { bgcolor: 'rgba(139, 92, 246, 0.1)' } }}
+                                onClick={() => handleVisitClick(patient)}
+                              >
+                                <AddCircleOutline fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
                             <Tooltip title="Upload Audio">
                               <IconButton 
                                 size="small" 
@@ -752,6 +816,64 @@ const Patients = () => {
             startIcon={<CloudUpload />}
           >
             Upload
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
+      {/* Add Visit Dialog */}
+      <Dialog
+        open={visitDialogOpen}
+        onClose={() => setVisitDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            bgcolor: '#1f2937',
+            color: 'white',
+            border: '1px solid #374151',
+            borderRadius: 2,
+            minWidth: '400px'
+          }
+        }}
+      >
+        <DialogTitle>Create New Visit</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: '#d1d5db', mb: 2 }}>
+            Creating visit for patient: {visitingPatient?.name}
+          </DialogContentText>
+          <TextareaAutosize
+            minRows={4}
+            placeholder="Enter the purpose of visit..."
+            value={visitPurpose}
+            onChange={(e) => setVisitPurpose(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              backgroundColor: '#374151',
+              color: 'white',
+              borderRadius: '8px',
+              border: '1px solid #4b5563',
+              resize: 'vertical',
+              fontSize: '14px'
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => {
+              setVisitDialogOpen(false);
+              setVisitPurpose('');
+              setVisitingPatient(null);
+            }}
+            sx={{ color: '#d1d5db' }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleCreateVisit}
+            variant="contained"
+            disabled={!visitPurpose.trim()}
+            startIcon={<AddCircleOutline />}
+          >
+            Create Visit
           </Button>
         </DialogActions>
       </Dialog>
