@@ -2,7 +2,7 @@ import Visit from "../model/visits.model.js";
 import { randomUUID } from "crypto";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { logError, logInfo } from "../utils/CustomLogger.js";
-import { createDirectory, deleteDirectory, uploadFile } from "./s3.service.js";
+import { createDirectory, deleteDirectory, getFile, uploadFile } from "./s3.service.js";
 import { ApiError } from "../utils/ApiError.js";
 import fs from "fs";
 const createVisit = async (req, res) => {
@@ -170,25 +170,21 @@ const getVisits = async (req, res) => {
         .json(new ApiResponse(false, null, "ID is required"));
     }
 
-    {
-      /**
-            find the patient visit associated with the patiend id and validate it with the doctorID 
-        */
-    }
-    const patients = await Visit.findAll({
+ 
+    const visit = await Visit.findAll({
       where: {
         patientID: id,
         doctorID: req.user.sub,
       },
     });
-    if (!patients) {
-      logError("No patients found");
+    if (!visit) {
+      logError("No visit found");
       return res
         .status(404)
-        .json(new ApiResponse(false, null, "No patients found"));
+        .json(new ApiResponse(false, null, "No visit found"));
     }
 
-    logInfo("Successfully fetched patients with ID: " + patients.id);
+    logInfo("Successfully fetched visit with ID: " + visit.id);
     {
       /**
             return the patients
@@ -197,8 +193,8 @@ const getVisits = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Patients fetched successfully",
-      data: patients,
+      message: "visits fetched successfully",
+      data: visit,
     });
   } catch (error) {
     logError("Error in getPatients: ", error);
@@ -230,4 +226,45 @@ const returnRecentVisits = async (req, res) => {
     throw new ApiError(500, "Something went wrong", error.message);
   }
 };
-export { createVisit, deleteVisit, getVisits, returnRecentVisits };
+
+const fetchReport = async (req, res) => {
+  try {
+    const { id } = req.query;
+    //validation
+    if (!id) {
+      logError("ID is required");
+      return res
+        .status(400)
+        .json(new ApiResponse(false, null, "ID is required"));
+    }
+
+    {
+      /**
+            find the visit associated with the visit id and validate it with the doctorID 
+        */
+    }
+    const visit = await Visit.findOne({
+      where: {
+        id: id,
+        doctorID: req.user.sub,
+      },
+    });
+    if (!visit) {
+      logError("No visit found");
+      return res
+        .status(404)
+        .json(new ApiResponse(false, null, "No visit found"));
+    }
+    
+    {
+      /**
+            get the visit analysis from S3 and then return it
+        */
+    }
+    const file = await getFile(visit.uniqueID,)
+  } catch (error) {
+    logError("Error in fetchReport: ", error);
+    throw new ApiError(500, "Internal Server Error", error);
+  }
+}
+export { createVisit, deleteVisit, getVisits, returnRecentVisits, fetchReport};

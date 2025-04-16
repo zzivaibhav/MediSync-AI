@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand , GetObjectCommand} from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 import { s3Client } from "../utils/s3client.js";
 import { logError, logInfo } from "../utils/CustomLogger.js";
@@ -151,7 +151,21 @@ const uploadFile = async(folderName, file)=> {
     }
 }
 
+const getFile = async (folderName ) => {
+    try {
+        const params = {
+            Bucket: process.env.S3_INPUT_BUCKET_NAME,
+            Key: `${folderName}/`
+        };
+        const command = new GetObjectCommand(params);
+        const data = await s3Client.send(command);
+        return data.Body;
+    } catch (error) {
+        console.error("Error fetching file from S3:", error);
+        return null;
+    }
+}
  
 
-export { createDirectory, deleteDirectory, uploadFile  };
+export { createDirectory, deleteDirectory, uploadFile , getFile}; 
 
