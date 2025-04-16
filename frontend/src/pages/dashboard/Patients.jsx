@@ -361,17 +361,20 @@ const Patients = () => {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) throw new Error('No access token found');
 
+      // Use FormData to send file and other fields
+      const formData = new FormData();
+      formData.append('id', visitingPatient.id);
+      formData.append('email', visitingPatient.email);
+      formData.append('purpose', visitPurpose);
+      formData.append('file', selectedFile);
+
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/doctor-api/create-visit`,
-        {
-          id: visitingPatient.id,
-          email: visitingPatient.email,
-          purpose: visitPurpose
-        },
+        formData,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'multipart/form-data'
           }
         }
       );
@@ -385,6 +388,7 @@ const Patients = () => {
         setVisitDialogOpen(false);
         setVisitPurpose('');
         setVisitingPatient(null);
+        setSelectedFile(null);
       } else {
         throw new Error(response.data?.message || 'Failed to create visit');
       }
@@ -566,7 +570,8 @@ const Patients = () => {
             mb: 4,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Removed animated medical kit logo and text */}
+          {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <MedicalServices 
               sx={{ 
                 fontSize: 40, 
@@ -595,7 +600,7 @@ const Patients = () => {
                 Manage your patients and their medical records
               </Typography>
             </Box>
-          </Box>
+          </Box> */}
 
           <Button 
             variant="contained"
@@ -1063,7 +1068,7 @@ const Patients = () => {
           <Button 
             onClick={handleCreateVisit}
             variant="contained"
-            disabled={!visitPurpose.trim()}
+            disabled={!visitPurpose.trim() || !selectedFile}
             startIcon={<AddCircleOutline />}
           >
             Create Visit
