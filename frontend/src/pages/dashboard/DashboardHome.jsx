@@ -88,7 +88,7 @@ const RecentTranscripts = ({ loading: initialLoading }) => {
       try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await axios.get(
-          `${import.meta.env.VITE_SERVER_URL}/doctor-api/get-recent-patients`,
+          `${import.meta.env.VITE_SERVER_URL}/doctor-api/get-recent-visits`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`

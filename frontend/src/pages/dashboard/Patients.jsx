@@ -48,6 +48,9 @@ import axios from 'axios';
 import { TableSkeleton } from '../../components/ui/Skeleton';
 import { useNavigate } from 'react-router-dom';
 import EditPatientModal from '../../components/modals/EditPatientModal';
+import { motion } from 'framer-motion';
+import { HexagonalAvatar } from '../../components/ui/HexagonalAvatar';
+import { PatientCard } from '../../components/ui/PatientCard';
 
 const Patients = () => {
   const navigate = useNavigate();
@@ -87,6 +90,41 @@ const Patients = () => {
   
   const [visitToDelete, setVisitToDelete] = useState(null);
   const [deleteVisitDialogOpen, setDeleteVisitDialogOpen] = useState(false);
+
+  const theme = {
+    colors: {
+      primary: {
+        main: '#0891b2',
+        light: '#22d3ee',
+        dark: '#0e7490',
+        gradient: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)'
+      },
+      secondary: {
+        main: '#8b5cf6',
+        light: '#a78bfa',
+        dark: '#7c3aed',
+        gradient: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)'
+      },
+      background: {
+        main: '#0f172a',
+        paper: 'rgba(30, 41, 59, 0.7)',
+        card: 'rgba(15, 23, 42, 0.6)',
+        gradient: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)'
+      },
+      status: {
+        active: '#10b981',
+        pending: '#f59e0b',
+        inactive: '#ef4444'
+      }
+    },
+    glassmorphism: {
+      background: 'rgba(15, 23, 42, 0.6)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(10px)',
+      borderRadius: '16px',
+      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)'
+    }
+  };
 
   // Fetch patients data
   const fetchPatients = async () => {
@@ -478,446 +516,318 @@ const Patients = () => {
     }
   };
 
-  // Visit Thread Component
-  const VisitThread = ({ patientId }) => {
-    const visits = patientVisits[patientId] || [];
-    
-    return (
-      <Collapse in={expandedPatient === patientId} timeout="auto">
-        <Box sx={{ 
-          p: 2,
-          bgcolor: '#1e293b',
-          borderRadius: '0 0 12px 12px',
-          border: '1px solid rgba(2, 132, 199, 0.2)',
-          borderTop: 'none'
-        }}>
-          <Box sx={{ position: 'relative', ml: 2 }}>
-            {/* Timeline line */}
-            <Box sx={{
-              position: 'absolute',
-              left: '16px',
-              top: 0,
-              bottom: 0,
-              width: '2px',
-              bgcolor: '#0ea5e9',
-              zIndex: 0
-            }} />
-            
-            {/* Visit items */}
-            {visits.map((visit, index) => (
-              <Box key={index} sx={{ 
+  return (
+    <Box sx={{ p: 3 }}>
+      {/* Header Section */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <Box 
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 4,
+            mb: 4,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <MedicalServices 
+              sx={{ 
+                fontSize: 40, 
+                color: theme.colors.secondary.main,
+                animation: 'pulse 2s infinite ease-in-out'
+              }} 
+            />
+            <Box>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  color: 'white',
+                  fontWeight: 'bold',
+                  letterSpacing: '0.5px'
+                }}
+              >
+                Patient Management
+              </Typography>
+              <Typography 
+                variant="subtitle1" 
+                sx={{ 
+                  color: 'grey.400',
+                  mt: 0.5 
+                }}
+              >
+                Manage your patients and their medical records
+              </Typography>
+            </Box>
+          </Box>
+
+          <Button 
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() => navigate('/dashboard/add-patient')}
+            sx={{
+              bgcolor: theme.colors.primary.main,
+              borderRadius: 2,
+              px: 3,
+              py: 1.5,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                bgcolor: theme.colors.secondary.main,
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)'
+              }
+            }}
+          >
+            Add New Patient
+          </Button>
+        </Box>
+      </motion.div>
+
+      {/* Filters and Search */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card 
+          sx={{ 
+            bgcolor: theme.colors.background.card,
+            borderRadius: 3,
+            border: `1px solid ${theme.colors.secondary.main}20`,
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            overflow: 'hidden',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
+            }
+          }}
+        >
+          <CardContent>
+            {/* Search and Filters Section */}
+            <Box 
+              sx={{
                 display: 'flex',
-                mb: index === visits.length - 1 ? 0 : 3,
-                position: 'relative'
-              }}>
-                {/* Timeline dot */}
-                <Box sx={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  bgcolor: '#0ea5e9',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 0 10px rgba(14, 165, 233, 0.5)',
-                  zIndex: 1,
-                  mr: 2
-                }}>
-                  <MedicalServices sx={{ color: 'white' }} fontSize="small" />
+                flexDirection: { xs: 'column', lg: 'row' },
+                alignItems: { lg: 'center' },
+                justifyContent: 'space-between',
+                gap: 3,
+                mb: 4,
+              }}
+            >
+              {/* Search Field */}
+              <TextField
+                placeholder="Search patients..."
+                variant="outlined"
+                fullWidth
+                size="small"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                sx={{
+                  maxWidth: { lg: '400px' },
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor: `${theme.colors.background.paper}`,
+                    borderRadius: 2,
+                    transition: 'all 0.3s ease',
+                    '& fieldset': {
+                      borderColor: `${theme.colors.secondary.main}40`,
+                    },
+                    '&:hover fieldset': {
+                      borderColor: theme.colors.secondary.main,
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: theme.colors.primary.main,
+                      borderWidth: 2
+                    }
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    color: 'white',
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search sx={{ color: '#9ca3af' }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              {/* Filter Buttons */}
+              <Box 
+                sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 2,
+                  flexWrap: 'wrap'
+                }}
+              >
+                <Box display="flex" alignItems="center" sx={{ color: '#9ca3af', mr: 1 }}>
+                  <Typography variant="body2">
+                    {filteredPatients.length} patients
+                  </Typography>
                 </Box>
-                
-                {/* Visit content */}
-                <Paper sx={{
-                  flex: 1,
-                  p: 2,
-                  bgcolor: '#0f172a',
-                  border: '1px solid rgba(2, 132, 199, 0.2)',
-                  borderRadius: '8px',
-                  '@keyframes glow': {
-                    '0%': { boxShadow: '0 0 5px rgba(14, 165, 233, 0.2)' },
-                    '50%': { boxShadow: '0 0 15px rgba(14, 165, 233, 0.4)' },
-                    '100%': { boxShadow: '0 0 5px rgba(14, 165, 233, 0.2)' }
-                  },
-                  animation: 'glow 3s infinite',
-                  '&:hover': {
-                    bgcolor: '#1e293b',
-                    transform: 'translateY(-2px)',
-                    transition: 'all 0.3s ease'
-                  },
-                  position: 'relative'
-                }}>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setVisitToDelete({ ...visit, patientId });
-                      setDeleteVisitDialogOpen(true);
-                    }}
-                    sx={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      color: '#ef4444',
-                      '&:hover': {
-                        bgcolor: 'rgba(239, 68, 68, 0.1)'
-                      }
-                    }}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                  <Typography variant="subtitle2" sx={{ 
-                    color: '#0ea5e9',
-                    mb: 1,
-                    fontWeight: 600 
-                  }}>
-                    {new Date(visit.createdAt).toLocaleDateString()} at {new Date(visit.createdAt).toLocaleTimeString()}
-                  </Typography>
-                  <Typography sx={{ 
-                    color: '#e2e8f0',
-                    fontSize: '0.9rem',
-                    lineHeight: 1.6
-                  }}>
-                    {visit.purpose}
-                  </Typography>
-                </Paper>
+
+                <Button
+                  variant="outlined"
+                  startIcon={<FilterList />}
+                  onClick={handleFilterClick}
+                  sx={{ 
+                    borderRadius: 2,
+                    borderColor: '#4b5563',
+                    color: selectedFilter !== 'All' ? 'primary.main' : 'white',
+                    '&:hover': {
+                      borderColor: '#60a5fa',
+                      bgcolor: 'rgba(96, 165, 250, 0.04)',
+                    }
+                  }}
+                >
+                  {selectedFilter}
+                </Button>
+                <Menu
+                  anchorEl={filterAnchorEl}
+                  open={Boolean(filterAnchorEl)}
+                  onClose={() => handleFilterClose()}
+                  PaperProps={{
+                    sx: {
+                      bgcolor: '#1f2937',
+                      color: 'white',
+                      border: '1px solid #374151',
+                      borderRadius: 2,
+                    }
+                  }}
+                >
+                  {filterOptions.map((option) => (
+                    <MenuItem 
+                      key={option} 
+                      onClick={() => handleFilterClose(option)}
+                      selected={selectedFilter === option}
+                      sx={{
+                        '&.Mui-selected': {
+                          bgcolor: 'rgba(96, 165, 250, 0.15)',
+                        },
+                        '&:hover': {
+                          bgcolor: 'rgba(96, 165, 250, 0.08)',
+                        }
+                      }}
+                    >
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Menu>
+
+                <Button
+                  variant="outlined"
+                  startIcon={<Sort />}
+                  onClick={handleSortClick}
+                  sx={{ 
+                    borderRadius: 2,
+                    borderColor: '#4b5563',
+                    color: 'white',
+                    '&:hover': {
+                      borderColor: '#60a5fa',
+                      bgcolor: 'rgba(96, 165, 250, 0.04)',
+                    }
+                  }}
+                >
+                  Sort
+                </Button>
+                <Menu
+                  anchorEl={sortAnchorEl}
+                  open={Boolean(sortAnchorEl)}
+                  onClose={() => handleSortClose()}
+                  PaperProps={{
+                    sx: {
+                      bgcolor: '#1f2937',
+                      color: 'white',
+                      border: '1px solid #374151',
+                      borderRadius: 2,
+                    }
+                  }}
+                >
+                  {sortOptions.map((option) => (
+                    <MenuItem 
+                      key={option} 
+                      onClick={() => handleSortClose(option)}
+                      selected={sortBy === option}
+                      sx={{
+                        '&.Mui-selected': {
+                          bgcolor: 'rgba(96, 165, 250, 0.15)',
+                        },
+                        '&:hover': {
+                          bgcolor: 'rgba(96, 165, 250, 0.08)',
+                        }
+                      }}
+                    >
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Menu>
               </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Patients List */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+      >
+        {loading ? (
+          <TableSkeleton rows={5} />
+        ) : (
+          <Box sx={{ mt: 4 }}>
+            {paginatedPatients.map((patient) => (
+              <PatientCard
+                key={patient.id}
+                patient={patient}
+                isExpanded={expandedPatient === patient.id}
+                onExpand={() => setExpandedPatient(expandedPatient === patient.id ? null : patient.id)}
+                onEdit={() => handleEditClick(patient)}
+                onDelete={() => handleDeleteClick(patient)}
+                onUpload={() => handleAudioUploadClick(patient)}
+                onAddVisit={() => handleVisitClick(patient)}
+                visits={patientVisits[patient.id] || []}
+              />
             ))}
           </Box>
-        </Box>
-      </Collapse>
-    );
-  };
+        )}
+      </motion.div>
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <Typography variant="h5" sx={{ color: 'white', fontWeight: 'bold' }}>
-          Patient Management
-        </Typography>
-        <Button 
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          sx={{ borderRadius: 2 }}
-          onClick={() => navigate('/dashboard/add-patient')}
+      {/* Pagination */}
+      {!loading && (
+        <Box 
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            pt: 4,
+          }}
         >
-          Add New Patient
-        </Button>
-      </div>
-
-      <Card sx={{ bgcolor: '#1f2937', borderRadius: 2, border: '1px solid #374151' }}>
-        <CardContent>
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
-            <TextField
-              placeholder="Search patients..."
-              variant="outlined"
-              fullWidth
-              size="small"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{
-                maxWidth: { lg: '400px' },
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: '#374151',
-                  borderRadius: 2,
-                  '& fieldset': {
-                    borderColor: '#4b5563',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#60a5fa',
-                  },
-                },
-                '& .MuiOutlinedInput-input': {
-                  color: 'white',
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search sx={{ color: '#9ca3af' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <div className="flex items-center gap-2">
-              <Box display="flex" alignItems="center" sx={{ color: '#9ca3af', mr: 1 }}>
-                <Typography variant="body2">
-                  {filteredPatients.length} patients
-                </Typography>
-              </Box>
-
-              <Button
-                variant="outlined"
-                startIcon={<FilterList />}
-                onClick={handleFilterClick}
-                sx={{ 
-                  borderRadius: 2,
-                  borderColor: '#4b5563',
-                  color: selectedFilter !== 'All' ? 'primary.main' : 'white',
-                  '&:hover': {
-                    borderColor: '#60a5fa',
-                    bgcolor: 'rgba(96, 165, 250, 0.04)',
-                  }
-                }}
-              >
-                {selectedFilter}
-              </Button>
-              <Menu
-                anchorEl={filterAnchorEl}
-                open={Boolean(filterAnchorEl)}
-                onClose={() => handleFilterClose()}
-                PaperProps={{
-                  sx: {
-                    bgcolor: '#1f2937',
-                    color: 'white',
-                    border: '1px solid #374151',
-                    borderRadius: 2,
-                  }
-                }}
-              >
-                {filterOptions.map((option) => (
-                  <MenuItem 
-                    key={option} 
-                    onClick={() => handleFilterClose(option)}
-                    selected={selectedFilter === option}
-                    sx={{
-                      '&.Mui-selected': {
-                        bgcolor: 'rgba(96, 165, 250, 0.15)',
-                      },
-                      '&:hover': {
-                        bgcolor: 'rgba(96, 165, 250, 0.08)',
-                      }
-                    }}
-                  >
-                    {option}
-                  </MenuItem>
-                ))}
-              </Menu>
-
-              <Button
-                variant="outlined"
-                startIcon={<Sort />}
-                onClick={handleSortClick}
-                sx={{ 
-                  borderRadius: 2,
-                  borderColor: '#4b5563',
+          <Pagination 
+            count={Math.ceil(filteredPatients.length / 10)}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            sx={{
+              '& .MuiPaginationItem-root': {
+                color: 'grey.400',
+                '&.Mui-selected': {
+                  bgcolor: `${theme.colors.primary.main}40`,
                   color: 'white',
                   '&:hover': {
-                    borderColor: '#60a5fa',
-                    bgcolor: 'rgba(96, 165, 250, 0.04)',
+                    bgcolor: `${theme.colors.primary.main}60`,
                   }
-                }}
-              >
-                Sort
-              </Button>
-              <Menu
-                anchorEl={sortAnchorEl}
-                open={Boolean(sortAnchorEl)}
-                onClose={() => handleSortClose()}
-                PaperProps={{
-                  sx: {
-                    bgcolor: '#1f2937',
-                    color: 'white',
-                    border: '1px solid #374151',
-                    borderRadius: 2,
-                  }
-                }}
-              >
-                {sortOptions.map((option) => (
-                  <MenuItem 
-                    key={option} 
-                    onClick={() => handleSortClose(option)}
-                    selected={sortBy === option}
-                    sx={{
-                      '&.Mui-selected': {
-                        bgcolor: 'rgba(96, 165, 250, 0.15)',
-                      },
-                      '&:hover': {
-                        bgcolor: 'rgba(96, 165, 250, 0.08)',
-                      }
-                    }}
-                  >
-                    {option}
-                  </MenuItem>
-                ))}
-              </Menu>
-            </div>
-          </div>
+                }
+              }
+            }}
+          />
+        </Box>
+      )}
 
-          {loading ? (
-            <TableSkeleton rows={10} columns={5} />
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-700">
-                <thead>
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Contact Information
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Date of Birth
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Registration Date
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-700">
-                  {paginatedPatients.map((patient) => {
-                    // Generate status for demo (replace with actual status from API when available)
-                    const status = patient.status || getRandomStatus();
-                    const statusStyle = getStatusColor(status);
-                    
-                    return (
-                      <React.Fragment key={patient.id}>
-                        <tr 
-                          className="hover:bg-gray-800 transition-colors duration-150"
-                          onClick={() => setExpandedPatient(expandedPatient === patient.id ? null : patient.id)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <Avatar 
-                                sx={{ 
-                                  bgcolor: `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`,
-                                  width: 40, 
-                                  height: 40,
-                                  fontSize: '0.9rem',
-                                  fontWeight: 'bold'
-                                }}
-                              >
-                                {getAvatarText(patient.name)}
-                              </Avatar>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-white">{patient.name}</div>
-                                <div className="text-xs text-gray-400">ID: {patient.id}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-300 flex flex-col">
-                              <div className="flex items-center">
-                                <span className="material-icons text-xs mr-1" style={{ fontSize: '16px' }}>📧</span>
-                                {patient.email}
-                              </div>
-                              <div className="flex items-center text-gray-400">
-                                <span className="material-icons text-xs mr-1" style={{ fontSize: '16px' }}>📱</span>
-                                {patient.phoneNumber}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-300">{new Date(patient.DOB).toLocaleDateString()}</div>
-                            <div className="text-xs text-gray-400">
-                              {Math.floor((new Date() - new Date(patient.DOB)) / (365.25 * 24 * 60 * 60 * 1000))} years old
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Chip 
-                              label={status}
-                              size="small"
-                              sx={{ 
-                                bgcolor: statusStyle.bg, 
-                                color: statusStyle.color,
-                                fontWeight: 'medium',
-                                '& .MuiChip-label': {
-                                  px: 2
-                                }
-                              }}
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-300">{new Date(patient.createdAt).toLocaleDateString()}</div>
-                            <div className="text-xs text-gray-400">{new Date(patient.createdAt).toLocaleTimeString()}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right">
-                            <div className="flex justify-end items-center space-x-1">
-                              {expandedPatient === patient.id ? (
-                                <ExpandLess sx={{ color: '#0ea5e9' }} />
-                              ) : (
-                                <ExpandMore sx={{ color: '#0ea5e9' }} />
-                              )}
-                              <Tooltip title="View Patient">
-                                <IconButton size="small" sx={{ color: '#60a5fa', '&:hover': { bgcolor: 'rgba(96, 165, 250, 0.1)' } }}>
-                                  <VisibilityOutlined fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Edit Patient">
-                                <IconButton 
-                                  size="small" 
-                                  sx={{ color: '#22c55e', '&:hover': { bgcolor: 'rgba(34, 197, 94, 0.1)' } }}
-                                  onClick={() => handleEditClick(patient)}
-                                >
-                                  <Edit fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Add Visit">
-                                <IconButton 
-                                  size="small" 
-                                  sx={{ color: '#8b5cf6', '&:hover': { bgcolor: 'rgba(139, 92, 246, 0.1)' } }}
-                                  onClick={() => handleVisitClick(patient)}
-                                >
-                                  <AddCircleOutline fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Upload Audio">
-                                <IconButton 
-                                  size="small" 
-                                  sx={{ color: '#f59e0b', '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.1)' } }}
-                                  onClick={() => handleAudioUploadClick(patient)}
-                                >
-                                  <CloudUpload fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Delete Patient">
-                                <IconButton 
-                                  size="small" 
-                                  sx={{ color: '#ef4444', '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.1)' } }}
-                                  onClick={() => handleDeleteClick(patient)}
-                                >
-                                  <DeleteOutlined fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            </div>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td colSpan="6" style={{ padding: 0 }}>
-                            <VisitThread patientId={patient.id} />
-                          </td>
-                        </tr>
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {!loading && (
-            <Box display="flex" justifyContent="center" pt={3}>
-              <Pagination 
-                count={Math.ceil(filteredPatients.length / 10)} 
-                page={page}
-                onChange={handlePageChange}
-                color="primary"
-                shape="rounded"
-              />
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-      
       {/* Edit Patient Modal */}
       {selectedPatient && (
         <EditPatientModal
@@ -1167,7 +1077,7 @@ const Patients = () => {
           {notification.message}
         </Alert>
       </Snackbar>
-    </div>
+    </Box>
   );
 };
 

@@ -285,30 +285,5 @@ const uploadAudio = async(req,res) =>{
   
 }
 
-const returnRecentPatients = async (req, res) => {
-    try {
-        console.log("Fetching recent patients for doctor ID:", req.user.sub);
-        //find all the patients of the doctor
-        const patients = await Patient.findAll({
-            where:{
-                doctorID: req.user.sub
-            },
-            order:[
-                ['createdAt', 'DESC']
-            ],
-            limit: 7
-        })
 
-        //now arrange the patients in descending order of their createdAt date.
-
-        return res.status(200).json(    
-            new ApiResponse(true,patients,"Recent patients fetched successfully")
-        )
-
-    
-    } catch (error) {
-        logError("Error fetching recent patients:", error);
-       throw new ApiError(500,"Something went wrong",error.message);
-    }
-}
-export { createPatient, getPatients, deletePatient, updatePatient, uploadAudio,returnRecentPatients };
+export { createPatient, getPatients, deletePatient, updatePatient, uploadAudio };

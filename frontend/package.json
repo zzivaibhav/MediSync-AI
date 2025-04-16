@@ -23,7 +23,7 @@
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.13",
     "formik": "^2.4.6",
-    "framer-motion": "^12.6.2",
+    "framer-motion": "^12.7.3",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
     "postcss": "^8.5.3",

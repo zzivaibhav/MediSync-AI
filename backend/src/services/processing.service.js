@@ -153,8 +153,36 @@ const getVisits = async (req, res) => {
         throw new ApiError(500, "Internal Server Error", error);
     }
 }
+
+const returnRecentVisits = async (req, res) => {
+    try {
+        console.log("Fetching recent visits for doctor ID:", req.user.sub);
+        //find all the visists of the doctor
+        const visits = await Visit.findAll({
+            where:{
+                doctorID: req.user.sub
+            },
+            order:[
+                ['createdAt', 'DESC']
+            ],
+            limit: 7
+        })
+
+        //now arrange the visits in descending order of their createdAt date.
+
+        return res.status(200).json(    
+            new ApiResponse(true,visits,"Recent visits fetched successfully")
+        )
+
+    
+    } catch (error) {
+        logError("Error fetching recent visists:", error);
+       throw new ApiError(500,"Something went wrong",error.message);
+    }
+}
 export  {
     createVisit,
     deleteVisit,
-    getVisits
+    getVisits,
+    returnRecentVisits
 }
