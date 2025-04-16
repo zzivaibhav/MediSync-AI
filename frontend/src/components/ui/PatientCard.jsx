@@ -235,22 +235,7 @@ export const PatientCard = ({
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Upload Audio">
-              <IconButton
-                size="small"
-                onClick={onUpload}
-                sx={{
-                  color: '#f59e0b',
-                  '&:hover': {
-                    bgcolor: 'rgba(245, 158, 11, 0.1)',
-                    transform: 'translateY(-1px)'
-                  },
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <CloudUpload fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            
           </Box>
 
           {/* Utility Actions Group */}

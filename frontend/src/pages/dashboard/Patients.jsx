@@ -937,20 +937,7 @@ const Patients = () => {
           <DialogContentText sx={{ color: '#d1d5db', mb: 2 }}>
             Upload audio conversation for patient: {uploadingPatient?.name}
           </DialogContentText>
-          <Button
-            variant="outlined"
-            component="label"
-            startIcon={<CloudUpload />}
-            sx={{ mb: 2 }}
-          >
-            Choose Audio File
-            <input
-              type="file"
-              hidden
-              accept="audio/*"
-              onChange={handleAudioFileChange}
-            />
-          </Button>
+         
           {selectedFile && (
             <Typography variant="body2" sx={{ color: '#d1d5db' }}>
               Selected file: {selectedFile.name}
@@ -1015,6 +1002,51 @@ const Patients = () => {
               fontSize: '14px'
             }}
           />
+          <Button
+            variant="outlined"
+            component="label"
+            startIcon={<CloudUpload />}
+            sx={{ mb: 2, mt: 2 }}
+          >
+            Choose Audio File
+            <input
+              type="file"
+              hidden
+              accept="audio/*"
+              onChange={handleAudioFileChange}
+            />
+          </Button>
+          {/* Show selected file info and clear option */}
+          {selectedFile && (
+            <Paper
+              sx={{
+                p: 2,
+                bgcolor: 'rgba(55, 65, 81, 0.5)',
+                border: '1px solid rgba(75, 85, 99, 0.5)',
+                borderRadius: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                mb: 2
+              }}
+            >
+              <Box>
+                <Typography variant="body2" sx={{ color: '#d1d5db', mb: 0.5 }}>
+                  File: {selectedFile.name}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#9ca3af' }}>
+                  Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                </Typography>
+              </Box>
+              <IconButton
+                size="small"
+                onClick={() => setSelectedFile(null)}
+                sx={{ color: '#ef4444' }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Paper>
+          )}
         </DialogContent>
         <DialogActions>
           <Button 
@@ -1022,6 +1054,7 @@ const Patients = () => {
               setVisitDialogOpen(false);
               setVisitPurpose('');
               setVisitingPatient(null);
+              setSelectedFile(null);
             }}
             sx={{ color: '#d1d5db' }}
           >
