@@ -10,25 +10,30 @@ on:
     paths:
       - "backend/**"
 
+env:
+  IMAGE_NAME: backend-medisync
+  DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
 jobs:
-  debug:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Print trigger info
-      run: |
-        echo "🔍 Event name: ${{ github.event_name }}"
-        echo "📂 Changed files:"
-        echo "${{ toJSON(github.event.commits.*.modified) }}"
-        echo "🔄 Workflow triggered successfully!"
-
-  # build:
-  #   needs: debug
+  # debug:
   #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: ./backend
-
   #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Build the Docker image
-  #     run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+  #   - name: Print trigger info
+  #     run: |
+  #       echo "🔍 Event name: ${{ github.event_name }}"
+  #       echo "📂 Changed files:"
+  #       echo "${{ toJSON(github.event.commits.*.modified) }}"
+  #       echo "🔄 Workflow triggered successfully!"
+
+  build:
+    needs: debug
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build the Docker image
+      run: docker build  -t $DOCKER_USERNAME/$IMAGE_NAME:$GITHUB_SHA -t $DOCKER_USERNAME/$IMAGE_NAME:latest .
+      
