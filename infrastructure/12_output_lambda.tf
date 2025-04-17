@@ -46,3 +46,25 @@ resource "aws_iam_role_policy_attachment" "lambda_network_policy_attachment" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = aws_iam_policy.network_interface_policy.arn
 }
+
+
+
+resource "aws_iam_role_policy" "lambda_sqs_access_policy" {
+  name = "lambda_sqs_access_policy"
+  role = aws_iam_role.lambda_role.name // Replace with your actual Lambda role resource
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ],
+        Resource = aws_sqs_queue.output_status_update_queue.arn
+      }
+    ]
+  })
+}
