@@ -26,8 +26,12 @@ export default function Login() {
 
     try {
       setLoading(true);
-      const serverURL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
-console.log('Server URL:', serverURL);
+      const serverURL = import.meta.env.VITE_SERVER_URL;
+      if (!serverURL) {
+        console.error('VITE_SERVER_URL is not set');
+        throw new Error('Server configuration error');
+      }
+      console.log('Server URL:', serverURL);
       const response = await axios.post(`${serverURL}/cognito/login`, 
         {
           email: formData.email,
