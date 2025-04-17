@@ -1,3 +1,6 @@
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 resource "aws_iam_role" "lambda_role" {
   name = "processAudio-role"
 
@@ -13,10 +16,25 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
-resource "aws_iam_policy" "network_interface_policy" {
-name  = "NetworkInterfacePolicy"
+resource "aws_iam_role" "ec2_to_secrets" {
+  name = "ec2-to-secrets-role"
 
-description = "Allows Lambda to manage network interfaces"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })  
+}
+
+resource "aws_iam_policy" "network_interface_policy" {
+  name  = "NetworkInterfacePolicy"
+
+  description = "Allows Lambda to manage network interfaces"
   
   policy = jsonencode({
     Version = "2012-10-17"
@@ -36,6 +54,7 @@ description = "Allows Lambda to manage network interfaces"
     ]
   })
 }
+
 resource "aws_iam_policy" "lambda_logging_policy" {
   name        = "LambdaLoggingPolicy"
   description = "Allows Lambda to write logs to CloudWatch"
@@ -46,7 +65,7 @@ resource "aws_iam_policy" "lambda_logging_policy" {
       {
         Effect = "Allow"
         Action = "logs:CreateLogGroup"
-        Resource = "arn:aws:logs:us-east-1:585768149091:*"
+        Resource = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"
       },
       {
         Effect = "Allow"
@@ -55,7 +74,7 @@ resource "aws_iam_policy" "lambda_logging_policy" {
           "logs:PutLogEvents"
         ]
         Resource = [
-          "arn:aws:logs:us-east-1:585768149091:log-group:/aws/lambda/processAudio:*"
+          "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${aws_lambda_function.healthscribe_processor.function_name}:*"
         ]
       }
     ]
@@ -77,7 +96,7 @@ resource "aws_iam_policy" "transcribe_access_policy" {
       {
         Effect = "Allow"
         Action = ["s3:GetObject"]
-        Resource = ["arn:aws:s3:::*transcribe*"]
+        Resource = ["${aws_s3_bucket.bucket.arn}/*"]
       }
     ]
   })
@@ -93,7 +112,29 @@ resource "aws_iam_policy" "pass_role_policy" {
       {
         Effect   = "Allow"
         Action   = "iam:PassRole"
-        Resource = "arn:aws:iam::585768149091:role/service-role/AmazonTranscribeServiceRole-MediSyncTranscribeRole"
+        Resource = aws_iam_role.healthscribe_service_role.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "secrets_access_policy" {
+  name        = "SecretsAccessPolicy"
+  description = "Allows EC2 to access specific secrets from Secrets Manager"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "Stmt1744900843774"
+        Effect    = "Allow"
+        Action    = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:ListSecrets"
+        ]
+        Resource  = [
+          aws_secretsmanager_secret.medisync_secrets.arn
+        ]
       }
     ]
   })
@@ -117,5 +158,14 @@ resource "aws_iam_role_policy_attachment" "pass_role_attachment" {
 resource "aws_iam_role_policy_attachment" "network_interface_attachment" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = aws_iam_policy.network_interface_policy.arn
-  
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_secrets_policy_attachment" {
+  role       = aws_iam_role.ec2_to_secrets.name
+  policy_arn = aws_iam_policy.secrets_access_policy.arn
+}
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "ec2-secrets-profile"
+  role = aws_iam_role.ec2_to_secrets.name
 }

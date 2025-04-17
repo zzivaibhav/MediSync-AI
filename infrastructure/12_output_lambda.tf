@@ -25,10 +25,10 @@ resource "aws_lambda_function" "output_processor" {
   
   environment {
     variables = {
-      db_string = aws_db_instance.medi_sync_ai_db.endpoint,
-      db_user =  aws_db_instance.medi_sync_ai_db.username,
-      db_password = aws_db_instance.medi_sync_ai_db.password,
-      db_name = aws_db_instance.medi_sync_ai_db.db_name
+      # db_string = aws_db_instance.medi_sync_ai_db.endpoint,
+      # db_user =  aws_db_instance.medi_sync_ai_db.username,
+      # db_password = aws_db_instance.medi_sync_ai_db.password,
+      # db_name = aws_db_instance.medi_sync_ai_db.db_name
     }
   }
 
