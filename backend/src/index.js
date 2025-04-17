@@ -12,6 +12,7 @@ db.sync().then(() => {
 ).catch((err) => {
   console.error("Error in syncing database", err);
 }
+
 );
   
  
