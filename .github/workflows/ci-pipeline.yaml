@@ -5,10 +5,12 @@ on:
     branches: [ "main" ]
     paths:
       - "backend/**"
+      - ".github/workflows/ci-pipeline.yaml"
   pull_request:
     branches: [ "main" ]
     paths:
       - "backend/**"
+      - ".github/workflows/ci-pipeline.yaml"
 
 env:
   IMAGE_NAME: backend-medisync
