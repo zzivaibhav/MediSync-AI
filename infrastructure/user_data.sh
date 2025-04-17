@@ -12,21 +12,26 @@ echo "===== Starting MediSync AI Docker Container Setup ====="
 echo "Updating system packages..."
 sudo yum update -y
 
-# Install Docker if not already installed
-if ! command -v docker &> /dev/null; then
-    echo "Installing Docker..."
-    sudo yum install -y docker
-    
-    # Start Docker service
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    
-    # Add current user to docker group to avoid using sudo
-    sudo usermod -aG docker $(whoami)
+# Install required packages (Docker, AWS CLI, jq)
+echo "Installing required packages..."
+sudo yum install -y docker aws-cli jq
 
-    echo "Docker installed successfully!"
-else
-    echo "Docker is already installed."
+# Start Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add current user to docker group to avoid using sudo
+sudo usermod -aG docker $(whoami)
+
+# Retrieve the SERVER environment variable from Secrets Manager
+echo "Retrieving SERVER environment variable from Secrets Manager..."
+SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id medisync-app-secrets --region ${aws_region} | jq -r '.SecretString')
+SERVER_ENV=$(echo "$SECRET_JSON" | jq -r '.SERVER')
+
+# Validate that we got the secret
+if [ -z "$SERVER_ENV" ]; then
+  echo "ERROR: Failed to retrieve SERVER environment variable from Secrets Manager"
+  exit 1
 fi
 
 # Pull the specified Docker image
@@ -40,11 +45,12 @@ if sudo docker ps -a | grep -q medisync-frontend; then
     sudo docker rm medisync-frontend || true
 fi
 
-# Run the Docker container
-echo "Starting MediSync AI Frontend container..."
+# Run the Docker container with the environment variable
+echo "Starting MediSync AI Frontend container with SERVER environment variable..."
 sudo docker run -d \
     --name medisync-frontend \
     -p 80:80 \
+    -e SERVER="$SERVER_ENV" \
     --restart unless-stopped \
     vaibhav1476/medisync-ai-frontend
 
