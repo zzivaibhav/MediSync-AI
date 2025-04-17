@@ -12,6 +12,8 @@ resource "aws_secretsmanager_secret_version" "medisync_secret_version" {
   secret_id = aws_secretsmanager_secret.medisync_secrets.id
   secret_string = jsonencode({
     DEMO = "DEMO"
+    VITE_SERVER_URL = "https://example.com"
+    
     # COGNITO_CLIENT_ID = aws_cognito_user_pool_client.client.id
     # COGNITO_CLIENT_SECRET = aws_cognito_user_pool_client.client.client_secret
     # COGNITO_USER_POOL_ID = aws_cognito_user_pool.doctor_registery.id
