@@ -6,17 +6,7 @@ from datetime import datetime
  
 import time
 def start_healthscribe_job(audio_file_uri, output_bucket, output_prefix):
-    """
-    Start an AWS HealthScribe job to process medical audio files.
-    
-    Args:
-        audio_file_uri (str): S3 URI of the audio file to process
-        output_bucket (str): S3 bucket where output should be stored
-        output_prefix (str): Prefix for the output files in S3
-        
-    Returns:
-        dict: Response from AWS HealthScribe service
-    """
+     
     # Initialize HealthScribe client
     healthscribe = boto3.client('transcribe')
     
