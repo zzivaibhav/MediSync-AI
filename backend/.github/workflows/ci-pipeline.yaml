@@ -1,0 +1,34 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "backend/**"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "backend/**"
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Print trigger info
+      run: |
+        echo "🔍 Event name: ${{ github.event_name }}"
+        echo "📂 Changed files:"
+        echo "${{ toJSON(github.event.commits.*.modified) }}"
+        echo "🔄 Workflow triggered successfully!"
+
+  # build:
+  #   needs: debug
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ./backend
+
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Build the Docker image
+  #     run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
