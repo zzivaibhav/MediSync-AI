@@ -2,6 +2,7 @@ import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand 
 import dotenv from "dotenv";
 import { s3Client } from "../utils/s3client.js";
 import { logError, logInfo } from "../utils/CustomLogger.js";
+import fs from "fs";
 dotenv.config();
 
 const createDirectory = async (  email) => {
@@ -122,7 +123,6 @@ async function deleteFromBucket(bucketName, prefix) {
 
 // function to upload a single file to the S3 bucket
 const uploadFile = async(folderName, file)=> {
-
     try {
         if (!file) {
             console.error("No file provided for upload");
@@ -134,17 +134,18 @@ const uploadFile = async(folderName, file)=> {
         }
         // Ensure folderName has trailing slash for S3
         const baseFolder = folderName.endsWith('/') ? folderName : `${folderName}/`;
+        // Use file.buffer if available, otherwise read from disk
+        const fileBody = file.buffer ? file.buffer : fs.readFileSync(file.path);
         const params = {
             Bucket: process.env.S3_INPUT_BUCKET_NAME,
             Key: `${baseFolder}${Date.now()}-${file.originalname}`,
-            Body: file.buffer,
+            Body: fileBody,
             ContentType: file.mimetype
         };
         const command = new PutObjectCommand(params);
         await s3Client.send(command);
         console.log("File uploaded successfully to S3");
         return true;
-
     } catch (error) {
         console.error("Error uploading file to S3:", error);
         return false;

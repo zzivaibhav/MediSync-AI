@@ -21,7 +21,8 @@ resource "aws_lambda_function" "healthscribe_processor" {
   # Environment variables
   environment {
     variables = {
-      HEALTHSCRIBE_ROLE_ARN = aws_iam_role.healthscribe_service_role.arn
+      HEALTHSCRIBE_ROLE_ARN = aws_iam_role.healthscribe_service_role.arn,
+      OUTPUT_BUCKET_NAME = aws_s3_bucket.output-bucket.bucket
     }
   }
 }
@@ -88,8 +89,8 @@ resource "aws_iam_policy" "lambda_healthscribe_policy" {
         ],
         Effect   = "Allow",
         Resource = [
-          "arn:aws:s3:::audio-source-medisync-ai",
-          "arn:aws:s3:::audio-source-medisync-ai/*"
+          "${aws_s3_bucket.bucket.arn}",
+          "${aws_s3_bucket.bucket.arn}/*"
         ]
       },
       {
@@ -119,14 +120,22 @@ resource "aws_iam_policy" "healthscribe_s3_access" {
     Statement = [
       {
         Action = [
-          "s3:GetObject",
+          "s3:GetObject"
+        ],
+        Effect   = "Allow",
+        Resource = [
+          "${aws_s3_bucket.bucket.arn}/*"
+        ]
+      },
+      {
+        Action = [
           "s3:PutObject",
           "s3:ListBucket"
         ],
         Effect   = "Allow",
         Resource = [
-          "arn:aws:s3:::audio-source-medisync-ai",
-          "arn:aws:s3:::audio-source-medisync-ai/*"
+          "${aws_s3_bucket.output-bucket.arn}",
+          "${aws_s3_bucket.output-bucket.arn}/*"
         ]
       }
     ]
@@ -138,5 +147,3 @@ resource "aws_iam_role_policy_attachment" "healthscribe_s3_attachment" {
   role       = aws_iam_role.healthscribe_service_role.name
   policy_arn = aws_iam_policy.healthscribe_s3_access.arn
 }
-
-

@@ -83,6 +83,7 @@ const Patients = () => {
   const [visitDialogOpen, setVisitDialogOpen] = useState(false);
   const [visitingPatient, setVisitingPatient] = useState(null);
   const [visitPurpose, setVisitPurpose] = useState('');
+  const [visitFileUploadProgress, setVisitFileUploadProgress] = useState(0);
 
   // New states for visits
   const [patientVisits, setPatientVisits] = useState({});
@@ -360,13 +361,27 @@ const Patients = () => {
     try {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) throw new Error('No access token found');
+      
+      // Validate file exists
+      if (!selectedFile) {
+        setNotification({
+          open: true,
+          message: 'Please select an audio file',
+          severity: 'error'
+        });
+        return;
+      }
 
-      // Use FormData to send file and other fields
       const formData = new FormData();
       formData.append('id', visitingPatient.id);
       formData.append('email', visitingPatient.email);
       formData.append('purpose', visitPurpose);
-      formData.append('file', selectedFile);
+      formData.append('file', selectedFile, selectedFile.name); // Added filename
+
+      // Log the FormData contents for debugging
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
 
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/doctor-api/create-visit`,
@@ -375,20 +390,30 @@ const Patients = () => {
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'multipart/form-data'
+          },
+          onUploadProgress: (progressEvent) => {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setVisitFileUploadProgress(progress);
           }
         }
       );
 
       if (response.data && response.data.success) {
+        // Update visits in state
+        await handleRefreshVisits(visitingPatient.id);
+        
         setNotification({
           open: true,
           message: 'Visit created successfully',
           severity: 'success'
         });
+        
+        // Reset form
         setVisitDialogOpen(false);
         setVisitPurpose('');
         setVisitingPatient(null);
         setSelectedFile(null);
+        setVisitFileUploadProgress(0);
       } else {
         throw new Error(response.data?.message || 'Failed to create visit');
       }
@@ -1018,39 +1043,42 @@ const Patients = () => {
               type="file"
               hidden
               accept="audio/*"
-              onChange={handleAudioFileChange}
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  if (file.type.startsWith('audio/')) {
+                    console.log('Selected file:', file); // Debug log
+                    setSelectedFile(file);
+                  } else {
+                    setNotification({
+                      open: true,
+                      message: 'Please select a valid audio file',
+                      severity: 'error'
+                    });
+                  }
+                }
+              }}
             />
           </Button>
-          {/* Show selected file info and clear option */}
-          {selectedFile && (
-            <Paper
-              sx={{
-                p: 2,
-                bgcolor: 'rgba(55, 65, 81, 0.5)',
-                border: '1px solid rgba(75, 85, 99, 0.5)',
-                borderRadius: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                mb: 2
-              }}
-            >
-              <Box>
-                <Typography variant="body2" sx={{ color: '#d1d5db', mb: 0.5 }}>
-                  File: {selectedFile.name}
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#9ca3af' }}>
-                  Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                </Typography>
-              </Box>
-              <IconButton
-                size="small"
-                onClick={() => setSelectedFile(null)}
-                sx={{ color: '#ef4444' }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Paper>
+          {/* Show upload progress */}
+          {visitFileUploadProgress > 0 && (
+            <Box sx={{ width: '100%', mt: 2 }}>
+              <LinearProgress 
+                variant="determinate" 
+                value={visitFileUploadProgress}
+                sx={{
+                  height: 8,
+                  borderRadius: 4,
+                  bgcolor: 'rgba(139, 92, 246, 0.1)',
+                  '& .MuiLinearProgress-bar': {
+                    bgcolor: '#8b5cf6'
+                  }
+                }}
+              />
+              <Typography variant="caption" sx={{ color: '#9ca3af', mt: 1, display: 'block' }}>
+                Uploading: {visitFileUploadProgress}%
+              </Typography>
+            </Box>
           )}
         </DialogContent>
         <DialogActions>

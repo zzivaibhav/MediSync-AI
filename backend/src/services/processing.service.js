@@ -29,7 +29,8 @@ const createVisit = async (req, res) => {
     const doctorID = req.user.sub;
 
     //create the unique bucket name
-    const uniqueBucketName = `${email}_${randomUUID().slice(0, 4)}`;
+    const emailPrefix = email.split('@')[0];
+    const uniqueBucketName = `${emailPrefix}_${randomUUID().slice(0, 4)}`;
 
     //make the S3 directory for the patient
     const s3_decision = await createDirectory(uniqueBucketName);

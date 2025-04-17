@@ -44,7 +44,7 @@ def lambda_handler(event, context):
                try:
                    with connection.cursor() as cursor:
                       # sql = "SELECT * FROM patient;"
-                        sql = "UPDATE patient SET status = 'complete' WHERE email = %s"
+                        sql = "UPDATE patient SET status = 'complete' WHERE uniqueID = %s"
                         cursor.execute(sql, (prefix))
                       # cursor.execute(sql)
                        

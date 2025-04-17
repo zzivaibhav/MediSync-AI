@@ -10,7 +10,9 @@ dotenv.config();
 
 
 // AWS Cognito Configuration
-const cognito = new AWS.CognitoIdentityServiceProvider();
+const cognito = new AWS.CognitoIdentityServiceProvider({
+  region: "us-east-1" // <-- Add this line to specify the region
+});
 
 const handleSignup = async (req, res) => {
   const { email, password, name, phone_number } = req.body;
