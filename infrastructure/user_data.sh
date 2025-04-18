@@ -23,7 +23,7 @@ done
 # Retrieve secrets from AWS Secrets Manager
 echo "Retrieving secrets from Secrets Manager..."
 SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id medisync_secrets_data --region us-east-1 | jq -r '.SecretString')
-SERVER_ENV=$(echo "$SECRET_JSON" | jq -r '.VITE_SERVER_URL')
+SERVER_ENV="http://$(echo "$SECRET_JSON" | jq -r '.VITE_SERVER_URL')"
 
 # Validate secret
 if [ -z "$SERVER_ENV" ]; then
@@ -61,3 +61,5 @@ docker ps | grep frontend-medisync && echo "✅ Frontend container is running"
 
 # Print public IP
 echo "🌐 Application should be accessible at: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)"
+
+

@@ -100,11 +100,11 @@ resource "aws_lb_target_group_attachment" "attach-ec2-backend-az-1" {
   
   resource "aws_lb" "backend-lb" {
   name               = "backend-lb-tf"
-  internal           = true
+  internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.backend-load_balancer.id]
-  subnets            = [aws_subnet.az_1private_subnet_2.id, aws_subnet.az_2private_subnet_2.id]
-    #subnets            = [aws_subnet.az_1public_subnet_1.id, aws_subnet.az_2public_subnet_1.id]
+  #subnets            = [aws_subnet.az_1private_subnet_2.id, aws_subnet.az_2private_subnet_2.id]
+  subnets            = [aws_subnet.az_1public_subnet_1.id, aws_subnet.az_2public_subnet_1.id]
 
   enable_deletion_protection = false
  
