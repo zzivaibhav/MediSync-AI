@@ -35,12 +35,12 @@ const createDirectory = async (  email) => {
                 Body: ''  // Empty content for the folder object
             })),
             
-            // Create in output bucket
-            s3Client.send(new PutObjectCommand({
-                Bucket: process.env.S3_OUTPUT_BUCKET_NAME,
-                Key: baseFolder,
-                Body: ''  // Empty content for the folder object
-            }))
+            // // Create in output bucket
+            // s3Client.send(new PutObjectCommand({
+            //     Bucket: process.env.S3_OUTPUT_BUCKET_NAME,
+            //     Key: baseFolder,
+            //     Body: ''  // Empty content for the folder object
+            // }))
         ];
         
         await Promise.all(folderCreationPromises);

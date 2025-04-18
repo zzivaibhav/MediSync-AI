@@ -29,9 +29,9 @@ def lambda_handler(event, context):
                print("Prefix before first slash:", prefix)
                print("File Path:", key)
               
-               db_endpoint = os.environ['db_string'].split(':')
-               host = db_endpoint[0]  # Just the hostname
-               port = int(db_endpoint[1]) if len(db_endpoint) > 1 else 3306  # Default to 3306 if no port specified
+               db_endpoint = os.environ['db_string'] 
+               host = db_endpoint 
+               port = 3306  # Default to 3306 if no port specified
 
                connection = pymysql.connect(
                     host=host,
@@ -44,7 +44,7 @@ def lambda_handler(event, context):
                try:
                    with connection.cursor() as cursor:
                       # sql = "SELECT * FROM patient;"
-                        sql = "UPDATE patient SET status = 'complete' WHERE uniqueID = %s"
+                        sql = "UPDATE Visits SET status = 'Processed' WHERE uniqueID = %s"
                         cursor.execute(sql, (prefix))
                       # cursor.execute(sql)
                        
