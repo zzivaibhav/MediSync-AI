@@ -8,7 +8,7 @@ COPY package*.json ./
 
 # Install dependencies
 RUN npm install
-
+RUN mkdir Static
 # Copy the rest of the application code
 COPY . .
 
