@@ -95,7 +95,7 @@ app.post("/upload-audio", upload.single('audioFile'), async (req, res) => {
 });
 
 app.get("/",authenticatJWT, (req, res) => {
-  res.send("Hello from Express!");
+  res.status(200).send("Hello from Express!");
 });
 
 app.get("/test", (req, res) => {
