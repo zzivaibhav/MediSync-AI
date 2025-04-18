@@ -52,7 +52,7 @@
     sudo docker run -d \
         --name frontend-medisync \
         -p 80:80 \
-        -e VITE_SERVER_URL="${SERVER_ENV}" \
+        -e VITE_SERVER_URL=$SERVER_ENV \
         --restart unless-stopped \
         vaibhav1476/medisync-ai-frontend
 
