@@ -1,38 +1,27 @@
-# Build stage
-FROM node:18-alpine AS build
-
+# Use Node.js for building
+FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Add build argument
-ARG VITE_SERVER_URL
-ENV VITE_SERVER_URL=$VITE_SERVER_URL
+# Set environment variables for Vite (you can define multiple variables here)
+ARG VITE_SERVER_URL="__VITE_SERVER_URL__"
+ENV VITE_SERVER_URL=${VITE_SERVER_URL}
 
-# Set NODE_ENV
-ENV NODE_ENV=production
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
+# Copy package files and install dependencies
+COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy rest of the application
+# Copy app files
 COPY . .
 
-# Build the application
+# Build the Vite app (this will replace the VITE_SERVER_URL variable with the one set above)
 RUN npm run build
 
-# Production stage
+# Use Nginx for serving the static files
 FROM nginx:alpine
-
-# Copy built files from build stage (using dist instead of build)
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copy nginx config if you have any custom configuration
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 80
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+# Expose port 80 and keep the container running
 EXPOSE 80
-
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
