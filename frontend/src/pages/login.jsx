@@ -63,8 +63,9 @@ export default function Login() {
         severity: 'success',
       });
 
-      // Redirect immediately after setting tokens
-      navigate('/dashboard');
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 100);
 
     } catch (err) {
       console.error('Error details:', err);
