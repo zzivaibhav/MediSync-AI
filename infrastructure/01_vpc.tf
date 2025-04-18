@@ -160,7 +160,7 @@ resource "aws_route_table" "backend-route-table-az-1" {
   vpc_id =   aws_vpc.vpc.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.nat-1.id
+    gateway_id = aws_internet_gateway.igw.id
   }
   route {
     cidr_block = "10.0.0.0/16"
@@ -240,7 +240,7 @@ resource "aws_route_table" "backend-route-table-az-2" {
   vpc_id =   aws_vpc.vpc.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.nat-2.id
+    gateway_id = aws_internet_gateway.igw.id
   }
   route {
     cidr_block = "10.0.0.0/16"

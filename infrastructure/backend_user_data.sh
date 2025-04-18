@@ -69,6 +69,8 @@ docker run -d \
   -e COGNITO_USER_POOL_ID=$COGNITO_USER_POOL_ID \
   -e S3_INPUT_BUCKET_NAME=$S3_INPUT_BUCKET_NAME \
   -e S3_OUTPUT_BUCKET_NAME=$S3_OUTPUT_BUCKET_NAME \
+    -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
   vaibhav1476/backend-medisync
 
 echo "✅ MediSync AI setup complete!"
