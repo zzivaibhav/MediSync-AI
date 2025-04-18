@@ -15,7 +15,7 @@ resource "aws_instance" "frontend-az-1" {
     tags = {
         Name = "frontend-az-1"
     }
-  depends_on = [ aws_security_group.frontend,aws_subnet.az_1private_subnet_1 ]
+  depends_on = [ aws_security_group.frontend,aws_subnet.az_1private_subnet_1 , aws_lb.backend-lb]
 }
 
 resource "aws_instance" "backend-az-1" {
@@ -55,7 +55,7 @@ resource "aws_instance" "frontend-az-2" {
     tags = {
         Name = "frontend-az-2"
     }
-  depends_on = [ aws_security_group.frontend,aws_subnet.az_2private_subnet_1 ]
+  depends_on = [ aws_security_group.frontend,aws_subnet.az_2private_subnet_1,aws_lb.backend-lb ]
 }
 
 

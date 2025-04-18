@@ -110,3 +110,15 @@ resource "aws_lb_target_group_attachment" "attach-ec2-backend-az-1" {
     Environment = "production"
   }
 }
+
+resource "aws_lb_listener" "backend" {
+  load_balancer_arn = aws_lb.backend-lb.arn
+  port              = "80"
+  protocol          = "HTTP"
+  
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.backend-tg.arn
+  }
+  
+} 
