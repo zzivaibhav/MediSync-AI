@@ -53,7 +53,7 @@ export default function EmailConfirmation() {
 
     try {
       setLoading(true);
-      const serverURL = 'http://localhost:8080';
+      const serverURL = import.meta.env.VITE_SERVER_URL;
       
       const response = await axios.post(`${serverURL}/cognito/confirm`, {
         email,
@@ -98,7 +98,7 @@ export default function EmailConfirmation() {
   const resendVerificationCode = async () => {
     try {
       setLoading(true);
-      const serverURL = 'http://localhost:8080';
+      const serverURL = import.meta.env.VITE_SERVER_URL;
       
       await axios.post(`${serverURL}/cognito/resend-verification`, { 
         email 
