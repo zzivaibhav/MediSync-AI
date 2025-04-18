@@ -133,7 +133,7 @@ resource "aws_iam_policy" "secrets_access_policy" {
           "secretsmanager:ListSecrets"
         ]
         Resource  = [
-          aws_secretsmanager_secret.medisync_secrets.arn
+         "arn:aws:secretsmanager:us-east-1:585768149091:secret:medisync_secrets_data-JICrN5"
         ]
       }
     ]

@@ -25,9 +25,9 @@ resource "aws_instance" "backend-az-1" {
 
     instance_type = "t2.micro"
     subnet_id = aws_subnet.az_1private_subnet_2.id
-    vpc_security_group_ids = [ aws_security_group.frontend.id ]
+    vpc_security_group_ids = [ aws_security_group.backend.id ]
     associate_public_ip_address = true
-        user_data  = file("user_data.sh")
+        user_data  = file("backend_user_data.sh")
     # instance_market_options {
     #   market_type = "spot"
     # }
@@ -67,9 +67,9 @@ resource "aws_instance" "backend-az-2" {
         iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
 
     subnet_id = aws_subnet.az_2private_subnet_2.id
-    vpc_security_group_ids = [ aws_security_group.frontend.id ]
+    vpc_security_group_ids = [ aws_security_group.backend.id ]
     associate_public_ip_address = true
-        user_data  = file("user_data.sh")
+        user_data  = file("backend_user_data.sh")
     # instance_market_options {
     #   market_type = "spot"
     # }
