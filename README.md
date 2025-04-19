@@ -68,19 +68,11 @@ MediSync-AI is a cutting-edge, cloud-native medical transcription and documentat
 
 ## 🏗️ Cloud-Native Architecture
 
-```mermaid
-graph TD
-    A[Frontend - React] --> B[API Gateway]
-    B --> C[Backend Services]
-    C --> D[AWS HealthScribe]
-    C --> E[Amazon S3]
-    C --> F[Amazon RDS]
-    G[AWS Cognito] --> A
-    H[AWS Lambda] --> E
-    H --> F
-    I[AWS CloudWatch] --> C
-    J[AWS Secrets Manager] --> C
-```
+<div align="center">
+  <img src="infrastructure/MedSyncAI.drawio.png" alt="MediSync-AI Architecture Diagram" width="100%">
+  
+  *MediSync-AI's Cloud-Native Architecture on AWS*
+</div>
 
 ### Infrastructure as Code
 - **Terraform-based**: Complete infrastructure defined in code
