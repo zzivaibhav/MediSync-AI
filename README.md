@@ -69,7 +69,7 @@ MediSync-AI is a cutting-edge, cloud-native medical transcription and documentat
 ## 🏗️ Cloud-Native Architecture
 
 <div align="center">
-  <img src="infrastructure/MedSyncAI.drawio.png" alt="MediSync-AI Architecture Diagram" width="100%">
+  <img src="infrastructure/final medisync.jpg" alt="MediSync-AI Architecture Diagram" width="100%">
   
   *MediSync-AI's Cloud-Native Architecture on AWS*
 </div>
